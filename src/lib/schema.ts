@@ -121,11 +121,21 @@ export const agents = sqliteTable("agents", {
     llmId: int("llm_id").references(() => llms.id, {
         onDelete: "cascade",
     }),
-    datasourceGroupId: int("datasource_group_id").references(() => datasourceGroups.id, {
-        onDelete: "cascade",
-    }),
     createdAt: integer("created_at", { mode: "timestamp" })
         .$defaultFn(() => new Date()),
     updatedAt: integer("updated_at", { mode: "timestamp" })
+        .$defaultFn(() => new Date()),
+})
+
+// Junction table for many-to-many relationship between agents and datasource groups
+export const agentDatasourceGroups = sqliteTable("agent_datasource_groups", {
+    id: int("id").primaryKey({ autoIncrement: true }),
+    agentId: int("agent_id").notNull().references(() => agents.id, {
+        onDelete: "cascade",
+    }),
+    datasourceGroupId: int("datasource_group_id").notNull().references(() => datasourceGroups.id, {
+        onDelete: "cascade",
+    }),
+    createdAt: integer("created_at", { mode: "timestamp" })
         .$defaultFn(() => new Date()),
 })

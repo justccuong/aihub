@@ -1,9 +1,8 @@
-import { llmsListQueryOptions } from "@/features/llms/query-options"
-import { llmsParamsLoader } from "@/features/llms/server/params-loader"
-import { LlmContainer, LlmList, LlmLoading } from "@/features/llms/components/llms"
-import { prefetch } from "@/lib/api/hydrate-client"
+import { llmsListQueryOptions, llmsParamsLoader, LlmContainer, LlmError, LlmList, LlmLoading } from "@/features/llms"
+import { HydrateClient, prefetch } from "@/lib/api/hydrate-client"
 import { requireAuth } from "@/lib/auth/utils"
 import { SearchParams } from "nuqs/server"
+import { ErrorBoundary } from "react-error-boundary"
 import { Suspense } from "react"
 
 type Props = {
@@ -17,9 +16,13 @@ export default async function Page({ searchParams }: Props) {
 
     return (
         <LlmContainer>
-            <Suspense fallback={<LlmLoading />}>
-                <LlmList />
-            </Suspense>
+            <HydrateClient>
+                <ErrorBoundary fallback={<LlmError />}>
+                    <Suspense fallback={<LlmLoading />}>
+                        <LlmList />
+                    </Suspense>
+                </ErrorBoundary>
+            </HydrateClient>
         </LlmContainer>
     )
 }

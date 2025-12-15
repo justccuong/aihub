@@ -1,6 +1,7 @@
 "use client"
 
 import {
+    BookIcon,
     BotIcon,
     LogOutIcon,
 } from "lucide-react"
@@ -27,6 +28,7 @@ const menuItems = [
         title: "Agent Management",
         items: [
             { title: "LLMs", icon: BotIcon, url: "/llms" },
+            { title: "Datasource", icon: BookIcon, url: "/datasource-groups" },
         ],
     },
 ]

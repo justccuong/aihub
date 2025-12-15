@@ -1,6 +1,8 @@
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
+import { queryOptions, infiniteQueryOptions, QueryClient } from '@tanstack/react-query'
 import { honoClient } from '@/lib/api/hono-client'
 import { llmsQuerySchema } from './params'
+import { createLlmSchema } from './server/routers'
+import { ApiError } from '@/lib/api/errors'
 import { z } from 'zod'
 
 // ============================================
@@ -8,6 +10,8 @@ import { z } from 'zod'
 // ============================================
 
 type LlmsQueryParams = z.infer<typeof llmsQuerySchema>
+type CreateLlmInput = z.infer<typeof createLlmSchema>
+type UpdateLlmInput = Partial<CreateLlmInput>
 
 // ============================================
 // Query Keys Factory
@@ -43,7 +47,7 @@ export const llmsListQueryOptions = (params: LlmsQueryParams) => {
             })
 
             if (!response.ok) {
-                throw new Error('Failed to fetch LLMs')
+                throw new ApiError('Failed to fetch LLMs', response.status)
             }
 
             return response.json()
@@ -63,10 +67,10 @@ export const llmDetailQueryOptions = (id: number) => {
             })
 
             if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('LLM not found')
-                }
-                throw new Error('Failed to fetch LLM')
+                throw new ApiError(
+                    response.status === 404 ? 'LLM not found' : 'Failed to fetch LLM',
+                    response.status
+                )
             }
 
             return response.json()
@@ -82,20 +86,13 @@ export const llmDetailQueryOptions = (id: number) => {
 /**
  * Mutation function for creating a new LLM
  */
-export const createLlmMutation = async (data: {
-    name: string
-    description?: string
-    provider: string
-    model: string
-    baseUrl: string
-    apiKey: string
-}) => {
+export const createLlmMutation = async (data: CreateLlmInput) => {
     const response = await honoClient.api.llms.$post({
         json: data,
     })
 
     if (!response.ok) {
-        throw new Error('Failed to create LLM')
+        throw new ApiError('Failed to create LLM', response.status)
     }
 
     return response.json()
@@ -106,14 +103,7 @@ export const createLlmMutation = async (data: {
  */
 export const updateLlmMutation = async (params: {
     id: number
-    data: {
-        name?: string
-        description?: string
-        provider?: string
-        model?: string
-        baseUrl?: string
-        apiKey?: string
-    }
+    data: UpdateLlmInput
 }) => {
     const response = await honoClient.api.llms[':id'].$patch({
         param: { id: String(params.id) },
@@ -121,10 +111,10 @@ export const updateLlmMutation = async (params: {
     })
 
     if (!response.ok) {
-        if (response.status === 404) {
-            throw new Error('LLM not found')
-        }
-        throw new Error('Failed to update LLM')
+        throw new ApiError(
+            response.status === 404 ? 'LLM not found' : 'Failed to update LLM',
+            response.status
+        )
     }
 
     return response.json()
@@ -139,10 +129,10 @@ export const deleteLlmMutation = async (id: number) => {
     })
 
     if (!response.ok) {
-        if (response.status === 404) {
-            throw new Error('LLM not found')
-        }
-        throw new Error('Failed to delete LLM')
+        throw new ApiError(
+            response.status === 404 ? 'LLM not found' : 'Failed to delete LLM',
+            response.status
+        )
     }
 
     return response.json()
@@ -155,20 +145,20 @@ export const deleteLlmMutation = async (id: number) => {
 /**
  * Helper to invalidate all LLM queries
  */
-export const invalidateLlmsQueries = (queryClient: any) => {
+export const invalidateLlmsQueries = (queryClient: QueryClient) => {
     return queryClient.invalidateQueries({ queryKey: llmsKeys.all })
 }
 
 /**
  * Helper to invalidate LLM list queries only
  */
-export const invalidateLlmsListQueries = (queryClient: any) => {
+export const invalidateLlmsListQueries = (queryClient: QueryClient) => {
     return queryClient.invalidateQueries({ queryKey: llmsKeys.lists() })
 }
 
 /**
  * Helper to invalidate a specific LLM detail query
  */
-export const invalidateLlmDetailQuery = (queryClient: any, id: number) => {
+export const invalidateLlmDetailQuery = (queryClient: QueryClient, id: number) => {
     return queryClient.invalidateQueries({ queryKey: llmsKeys.detail(id) })
 }

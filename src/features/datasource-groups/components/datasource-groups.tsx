@@ -10,27 +10,27 @@ import {
     EntitySearch,
     EntityStateView,
 } from "@/components/entity-components"
-import { useLlmsList, useDeleteLlm } from "../hooks/use-llms"
-import { useLlmsParams } from "../hooks/use-llms-params"
+import { useDatasourceGroupsList, useDeleteDatasourceGroup } from "../hooks/use-datasource-groups"
+import { useDatasourceGroupsParams } from "../hooks/use-datasource-groups-params"
 import { useEntitySearch } from "@/hooks/use-entity-search"
 import { Spinner } from "@/components/ui/spinner"
-import { AlertTriangleIcon, BotIcon, CpuIcon, PackageOpenIcon } from "lucide-react"
+import { AlertTriangleIcon, DatabaseIcon, FolderIcon, PackageOpenIcon } from "lucide-react"
 import { useState } from "react"
-import { LlmsDialog } from "./llms-dialog"
+import { DatasourceGroupsDialog } from "./datasource-groups-dialog"
 import { honoClient } from "@/lib/api/hono-client"
 import { InferResponseType } from "hono/client"
 
-type LlmsSuccessResponse = InferResponseType<typeof honoClient.api.llms.$get, 200>
-type LlmItem = LlmsSuccessResponse["data"][number]
+type DatasourceGroupsSuccessResponse = InferResponseType<typeof honoClient.api['datasource-groups']['$get'], 200>
+type DatasourceGroupItem = DatasourceGroupsSuccessResponse["data"][number]
 
-export const LlmList = () => {
-    const [params, setParams] = useLlmsParams()
-    const { data, isFetching } = useLlmsList(params)
-    const deleteLlm = useDeleteLlm()
-    const [editItem, setEditItem] = useState<LlmItem | null>(null)
+export const DatasourceGroupList = () => {
+    const [params, setParams] = useDatasourceGroupsParams()
+    const { data, isFetching } = useDatasourceGroupsList(params)
+    const deleteDatasourceGroup = useDeleteDatasourceGroup()
+    const [editItem, setEditItem] = useState<DatasourceGroupItem | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
 
-    const handleEdit = (item: LlmItem) => {
+    const handleEdit = (item: DatasourceGroupItem) => {
         setEditItem(item)
         setDialogOpen(true)
     }
@@ -40,38 +40,34 @@ export const LlmList = () => {
         setEditItem(null)
     }
 
-    const items = data?.data || []
+    const items = (data?.data || []) as DatasourceGroupItem[]
     const pagination = data?.pagination
 
     return (
         <>
-            <EntityList
+            <EntityList<DatasourceGroupItem>
                 items={items}
                 getKey={(item) => item.id}
-                emptyView={<LlmEmpty />}
+                emptyView={<DatasourceGroupEmpty />}
                 isPending={isFetching}
                 renderItem={(item) => (
                     <EntityItem
-                        href="#"
+                        href={`/datasource-groups/${item.id}`}
                         title={item.name}
                         subtitle={
                             <span className="flex items-center gap-1.5">
-                                <CpuIcon className="size-3" />
-                                {item.provider} / {item.model}
+                                <DatabaseIcon className="size-3" />
+                                {item.description || "No description"}
                             </span>
                         }
                         image={
                             <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <BotIcon className="size-5 text-primary" />
+                                <FolderIcon className="size-5 text-primary" />
                             </div>
                         }
                         onEdit={() => handleEdit(item)}
-                        onRemove={() => deleteLlm.mutate(item.id)}
-                        isRemoving={deleteLlm.isPending}
-                        onClick={(e) => {
-                            e.preventDefault()
-                            handleEdit(item)
-                        }}
+                        onRemove={() => deleteDatasourceGroup.mutate(item.id)}
+                        isRemoving={deleteDatasourceGroup.isPending}
                     />
                 )}
             />
@@ -82,7 +78,7 @@ export const LlmList = () => {
                     onPageChange={(page) => setParams({ ...params, page })}
                 />
             )}
-            <LlmsDialog
+            <DatasourceGroupsDialog
                 open={dialogOpen}
                 onOpenChange={handleClose}
                 editItem={editItem}
@@ -91,19 +87,19 @@ export const LlmList = () => {
     )
 }
 
-export const LlmHeader = ({ disabled }: { disabled?: boolean }) => {
+export const DatasourceGroupHeader = ({ disabled }: { disabled?: boolean }) => {
     const [dialogOpen, setDialogOpen] = useState(false)
 
     return (
         <>
             <EntityHeader
-                title="LLMs"
-                description="Manage your language model configurations"
+                title="Datasource Groups"
+                description="Manage your datasource group configurations"
                 onNew={() => setDialogOpen(true)}
-                newButtonLabel="Add LLM"
+                newButtonLabel="Add Group"
                 disabled={disabled}
             />
-            <LlmsDialog
+            <DatasourceGroupsDialog
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}
             />
@@ -111,8 +107,8 @@ export const LlmHeader = ({ disabled }: { disabled?: boolean }) => {
     )
 }
 
-export const LlmSearch = () => {
-    const [params, setParams] = useLlmsParams()
+export const DatasourceGroupSearch = () => {
+    const [params, setParams] = useDatasourceGroupsParams()
     const { searchValue, onSearchChange } = useEntitySearch({
         params,
         setParams,
@@ -122,57 +118,57 @@ export const LlmSearch = () => {
         <EntitySearch
             value={searchValue}
             onChange={onSearchChange}
-            placeholder="Search LLMs..."
+            placeholder="Search datasource groups..."
         />
     )
 }
 
-export const LlmContainer = ({
+export const DatasourceGroupContainer = ({
     children,
 }: {
     children: React.ReactNode
 }) => {
     return (
         <EntityContainer
-            header={<LlmHeader />}
-            search={<LlmSearch />}
+            header={<DatasourceGroupHeader />}
+            search={<DatasourceGroupSearch />}
         >
             {children}
         </EntityContainer>
     )
 }
 
-export const LlmLoading = () => {
+export const DatasourceGroupLoading = () => {
     return (
         <EntityStateView
             icon={<Spinner className="size-6" />}
-            title="Loading LLMs..."
+            title="Loading datasource groups..."
         />
     )
 }
 
-export const LlmError = () => {
+export const DatasourceGroupError = () => {
     return (
         <EntityStateView
             icon={<AlertTriangleIcon className="size-6 text-orange-600" />}
-            title="Error loading LLMs"
+            title="Error loading datasource groups"
         />
     )
 }
 
-export const LlmEmpty = () => {
+export const DatasourceGroupEmpty = () => {
     const [dialogOpen, setDialogOpen] = useState(false)
 
     return (
         <>
             <EntityEmptyView
                 icon={<PackageOpenIcon className="size-6" />}
-                title="No LLMs"
-                message="Add your first language model configuration."
+                title="No Datasource Groups"
+                message="Add your first datasource group to organize your data sources."
                 onNews={() => setDialogOpen(true)}
-                newLabel="Add LLM"
+                newLabel="Add Group"
             />
-            <LlmsDialog
+            <DatasourceGroupsDialog
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}
             />

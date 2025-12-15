@@ -16,6 +16,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "./ui/empty"
+import { Spinner } from "./ui/spinner"
 import { cn } from "@/lib/utils"
 import React, { useState } from "react"
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card"
@@ -64,6 +65,8 @@ export interface EntityTableProps<TData, TValue> {
     pageSize?: number
     // Callbacks
     onRowClick?: (row: TData) => void
+    // Loading state
+    isPending?: boolean
 }
 
 type EntityHeaderProps = {
@@ -170,7 +173,7 @@ export const EntitySearch = ({
         <div className="relative ml-auto">
             <SearchIcon className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
-                className="max-w-[200px] bg-background shadow-none border-border pl-8"
+                className="min-w-[400px] bg-background shadow-none border-border pl-8"
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -281,6 +284,7 @@ interface EntityListProps<T> {
     getKey?: (item: T, index: number) => string | number
     emptyView?: React.ReactNode
     className?: string
+    isPending?: boolean
 }
 
 export function EntityList<T>({
@@ -289,6 +293,7 @@ export function EntityList<T>({
     getKey,
     emptyView,
     className,
+    isPending,
 }: EntityListProps<T>) {
     if (items.length === 0 && emptyView) {
         return (
@@ -299,7 +304,12 @@ export function EntityList<T>({
     }
 
     return (
-        <div className={cn("flex flex-col gap-y-4", className)}>
+        <div className={cn("relative flex flex-col gap-y-4", className)}>
+            {isPending && (
+                <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-md">
+                    <Spinner className="size-6" />
+                </div>
+            )}
             {items.map((item, index) => (
                 <div key={getKey ? getKey(item, index) : index}>
                     {renderItem(item, index)}
@@ -315,6 +325,7 @@ interface EntityItemProps {
     subtitle?: React.ReactNode
     image?: React.ReactNode
     actions?: React.ReactNode
+    onEdit?: () => void
     onRemove?: () => void | Promise<void>
     isRemoving?: boolean
     className?: string
@@ -327,6 +338,7 @@ export const EntityItem = ({
     subtitle,
     image,
     actions,
+    onEdit,
     onRemove,
     isRemoving,
     className,
@@ -341,6 +353,15 @@ export const EntityItem = ({
 
         if (onRemove) {
             await onRemove()
+            setOpenMenu(false)
+        }
+    }
+
+    const handleEdit = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (onEdit) {
+            onEdit()
             setOpenMenu(false)
         }
     }
@@ -368,10 +389,10 @@ export const EntityItem = ({
                             )}
                         </div>
                     </div>
-                    {(actions || onRemove) && (
+                    {(actions || onEdit || onRemove) && (
                         <div className="flex gap-x-4 items-center">
                             {actions}
-                            {onRemove && (
+                            {(onEdit || onRemove) && (
                                 <DropdownMenu
                                     open={openMenu}
                                     onOpenChange={setOpenMenu}
@@ -390,13 +411,22 @@ export const EntityItem = ({
                                         align="end"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <DropdownMenuItem
-                                            onClick={handleRemove}
-                                            disabled={isRemoving}
-                                        >
-                                            <TrashIcon className="size-4" />
-                                            Delete
-                                        </DropdownMenuItem>
+                                        {onEdit && (
+                                            <DropdownMenuItem onClick={handleEdit}>
+                                                <EditIcon className="size-4" />
+                                                Edit
+                                            </DropdownMenuItem>
+                                        )}
+                                        {onRemove && (
+                                            <DropdownMenuItem
+                                                onClick={handleRemove}
+                                                disabled={isRemoving}
+                                                className="text-destructive focus:text-destructive"
+                                            >
+                                                <TrashIcon className="size-4" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             )}
@@ -425,6 +455,7 @@ export function EntityTable<TData, TValue>({
     enableRowSelection = false,
     pageSize = 10,
     onRowClick,
+    isPending,
 }: EntityTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -468,7 +499,12 @@ export function EntityTable<TData, TValue>({
     }
 
     return (
-        <div className={cn("space-y-4", className)}>
+        <div className={cn("relative space-y-4", className)}>
+            {isPending && (
+                <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-md">
+                    <Spinner className="size-6" />
+                </div>
+            )}
             <div className="overflow-hidden rounded-md border bg-background">
                 <Table>
                     <TableHeader>
