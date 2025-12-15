@@ -54,6 +54,13 @@
 			"index_name": "aihub-vectorize",
 			"remote": true
 		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "AIHUB_KV",
+			"id": "ba3bf1d163684c5691fddd0ab4ba65c1",
+			"remote": true
+		}
 	]
 	/**
 	 * Smart Placement
