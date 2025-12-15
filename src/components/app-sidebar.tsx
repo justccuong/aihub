@@ -1,14 +1,7 @@
 "use client"
 
 import {
-    BriefcaseIcon,
-    GraduationCapIcon,
-    TrophyIcon,
-    FolderKanbanIcon,
-    AwardIcon,
-    HeartHandshakeIcon,
-    WrenchIcon,
-    UserIcon,
+    BotIcon,
     LogOutIcon,
 } from "lucide-react"
 import {
@@ -31,21 +24,9 @@ import { signOut } from "@/lib/auth/client"
 
 const menuItems = [
     {
-        title: "Settings",
+        title: "Agent Management",
         items: [
-            { title: "Profile", icon: UserIcon, url: "/profile" },
-        ],
-    },
-    {
-        title: "Portfolio",
-        items: [
-            { title: "Work Experience", icon: BriefcaseIcon, url: "/work-experience" },
-            { title: "Education", icon: GraduationCapIcon, url: "/education" },
-            { title: "Awards", icon: TrophyIcon, url: "/awards" },
-            { title: "Projects", icon: FolderKanbanIcon, url: "/projects" },
-            { title: "Certificates", icon: AwardIcon, url: "/certificates" },
-            { title: "Activities", icon: HeartHandshakeIcon, url: "/activities" },
-            { title: "Skills", icon: WrenchIcon, url: "/skills" },
+            { title: "LLMs", icon: BotIcon, url: "/llms" },
         ],
     },
 ]
