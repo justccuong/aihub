@@ -3,6 +3,7 @@
 import {
     BookIcon,
     BotIcon,
+    BotMessageSquareIcon,
     LogOutIcon,
 } from "lucide-react"
 import {
@@ -29,6 +30,7 @@ const menuItems = [
         items: [
             { title: "LLMs", icon: BotIcon, url: "/llms" },
             { title: "Datasource", icon: BookIcon, url: "/datasource-groups" },
+            { title: "Agents", icon: BotMessageSquareIcon, url: "/agents" },
         ],
     },
 ]
