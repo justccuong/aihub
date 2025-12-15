@@ -87,7 +87,7 @@ export default function RegisterForm() {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <div className="grid gap-6">
-                                <div className="flex flex-col gap-4">
+                                {/* <div className="flex flex-col gap-4">
                                     <Button
                                         variant={"outline"}
                                         className="w-full"
@@ -102,7 +102,7 @@ export default function RegisterForm() {
                                         />
                                         Continue with Google
                                     </Button>
-                                </div>
+                                </div> */}
                                 <div className="grid gap-6">
                                     <FormField
                                         control={form.control}

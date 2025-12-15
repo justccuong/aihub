@@ -1,11 +1,8 @@
 import { Hono } from 'hono'
+import { llmsRouter } from '@/features/llms/server/routers'
 
 const app = new Hono().basePath('/api')
-
-app.get('/hello', (c) => {
-    return c.json({
-        message: 'Hello Next.js!',
-    })
-})
+    .route('/llms', llmsRouter)
 
 export default app
+export type AppType = typeof app
