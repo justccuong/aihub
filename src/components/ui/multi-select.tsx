@@ -1,14 +1,13 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
-    CheckIcon,
-    XCircle,
     ChevronDown,
     XIcon,
     WandSparkles,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -802,7 +801,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                             aria-label={`Multi-select: ${selectedValues.length} of ${getAllOptions().length
                                 } options selected. ${placeholder}`}
                             className={cn(
-                                "flex p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit [&_svg]:pointer-events-auto",
+                                "flex p-1 rounded-md border border-input min-h-10 h-auto items-center justify-between bg-background hover:bg-background [&_svg]:pointer-events-auto",
                                 autoSize ? "w-auto" : "w-full",
                                 responsiveSettings.compactMode && "min-h-8 text-sm",
                                 screenSize === "mobile" && "min-h-12 text-base",
@@ -907,8 +906,8 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                                                                 }
                                                             }}
                                                             aria-label={`Remove ${option.label} from selection`}
-                                                            className="ml-2 h-4 w-4 cursor-pointer hover:bg-white/20 rounded-sm p-0.5 -m-0.5 focus:outline-none focus:ring-1 focus:ring-white/50">
-                                                            <XCircle
+                                                            className="ml-2 h-4 w-4 cursor-pointer hover:bg-white/20 rounded-sm p-0.5 -m-0.5 focus:outline-none focus:ring-1 focus:ring-white/50 flex items-center justify-center">
+                                                            <XIcon
                                                                 className={cn(
                                                                     "h-3 w-3",
                                                                     responsiveSettings.compactMode &&
@@ -938,7 +937,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                                                 }}>
                                                 {`+ ${selectedValues.length - responsiveSettings.maxCount
                                                     } more`}
-                                                <XCircle
+                                                <XIcon
                                                     className={cn(
                                                         "ml-2 h-4 w-4 cursor-pointer",
                                                         responsiveSettings.compactMode && "ml-1 h-3 w-3"
@@ -1051,16 +1050,14 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                                                 } options`}
                                             className="cursor-pointer">
                                             <div
-                                                className={cn(
-                                                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                                    selectedValues.length ===
-                                                        getAllOptions().filter((opt) => !opt.disabled)
-                                                            .length
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "opacity-50 [&_svg]:invisible"
-                                                )}
+                                                className="mr-2 flex items-center justify-center rounded-sm"
                                                 aria-hidden="true">
-                                                <CheckIcon className="h-4 w-4" />
+                                                <Checkbox
+                                                    checked={selectedValues.length ===
+                                                        getAllOptions().filter((opt) => !opt.disabled)
+                                                            .length}
+                                                    className="pointer-events-none"
+                                                />
                                             </div>
                                             <span>
                                                 (Select All
@@ -1094,14 +1091,12 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                                                         )}
                                                         disabled={option.disabled}>
                                                         <div
-                                                            className={cn(
-                                                                "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                                                isSelected
-                                                                    ? "bg-primary text-primary-foreground"
-                                                                    : "opacity-50 [&_svg]:invisible"
-                                                            )}
+                                                            className="mr-2 flex items-center justify-center rounded-sm"
                                                             aria-hidden="true">
-                                                            <CheckIcon className="h-4 w-4" />
+                                                            <Checkbox
+                                                                checked={isSelected}
+                                                                className="pointer-events-none"
+                                                            />
                                                         </div>
                                                         {option.icon && (
                                                             <option.icon
@@ -1134,14 +1129,12 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                                                     )}
                                                     disabled={option.disabled}>
                                                     <div
-                                                        className={cn(
-                                                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                                            isSelected
-                                                                ? "bg-primary text-primary-foreground"
-                                                                : "opacity-50 [&_svg]:invisible"
-                                                        )}
+                                                        className="mr-2 flex items-center justify-center rounded-sm"
                                                         aria-hidden="true">
-                                                        <CheckIcon className="h-4 w-4" />
+                                                        <Checkbox
+                                                            checked={isSelected}
+                                                            className="pointer-events-none"
+                                                        />
                                                     </div>
                                                     {option.icon && (
                                                         <option.icon
