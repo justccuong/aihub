@@ -2,6 +2,19 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	/* config options here */
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
+	devIndicators: false,
+	async redirects() {
+		return [
+			{
+				source: "/",
+				destination: "/llms",
+				permanent: false,
+			},
+		]
+	},
 };
 
 export default nextConfig;

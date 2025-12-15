@@ -9,7 +9,7 @@ import * as schema from '../schema';
  */
 export async function createAuth() {
     const { env } = await getCloudflareContext({ async: true });
-    const db = drizzle(env.portfolio_db, { schema });
+    const db = drizzle(env.AIHUB_DB, { schema });
 
     return betterAuth({
         database: drizzleAdapter(db, {
