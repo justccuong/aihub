@@ -1,6 +1,6 @@
 import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import { honoClient } from '@/lib/api/hono-client'
-import { llmsParams, llmsQuerySchema } from './params'
+import { llmsQuerySchema } from './params'
 import { z } from 'zod'
 
 // ============================================

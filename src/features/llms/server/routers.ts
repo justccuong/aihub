@@ -8,7 +8,7 @@ import { llmsQuerySchema } from '../params'
 import { protectedRoute } from '@/backend/middleware/auth'
 
 // Validation schemas
-const createLlmSchema = z.object({
+export const createLlmSchema = z.object({
     name: z.string().min(1, 'Name is required').max(255),
     description: z.string().default('').optional(),
     provider: z.string().min(1, 'Provider is required').max(100),

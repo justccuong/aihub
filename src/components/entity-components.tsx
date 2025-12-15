@@ -318,6 +318,7 @@ interface EntityItemProps {
     onRemove?: () => void | Promise<void>
     isRemoving?: boolean
     className?: string
+    onClick?: (e: React.MouseEvent) => void
 }
 
 export const EntityItem = ({
@@ -329,6 +330,7 @@ export const EntityItem = ({
     onRemove,
     isRemoving,
     className,
+    onClick,
 }: EntityItemProps) => {
     const [openMenu, setOpenMenu] = useState(false)
     const handleRemove = async (e: React.MouseEvent) => {
@@ -344,7 +346,7 @@ export const EntityItem = ({
     }
 
     return (
-        <Link href={href} prefetch>
+        <Link href={href} prefetch onClick={onClick}>
             <Card
                 className={cn(
                     "p-4 shadow-none hover:shadow cursor-pointer",
