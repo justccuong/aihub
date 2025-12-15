@@ -4,7 +4,7 @@ export const PAGINATION = {
 } as const;
 
 export enum Path {
-    ADMIN_DASHBOARD = "/admin",
+    ADMIN_DASHBOARD = "/",
     LOGIN = "/login",
     SIGNUP = "/signup",
 }
