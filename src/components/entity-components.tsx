@@ -238,7 +238,7 @@ export const EntityStateView = ({
     content,
 }: EntityStateViewProps) => {
     return (
-        <Empty className="border border-dashed bg-white">
+        <Empty className="border border-dashed bg-white dark:bg-background">
             <EmptyHeader>
                 <EmptyMedia variant="icon">
                     {icon ? icon : <BotIcon />}
