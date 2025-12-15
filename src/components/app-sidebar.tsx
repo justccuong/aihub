@@ -78,13 +78,13 @@ export const AppSidebar = () => {
                                                 `${Path.ADMIN_DASHBOARD}${item.url}` === "/"
                                                     ? pathname === "/"
                                                     : pathname.startsWith(
-                                                        `${Path.ADMIN_DASHBOARD}${item.url}`
+                                                        `${item.url}`
                                                     )
                                             }
                                             asChild
                                             className="gap-x-4 h-10 px-4"
                                         >
-                                            <Link href={`${Path.ADMIN_DASHBOARD}${item.url}`} prefetch>
+                                            <Link href={`${item.url}`} prefetch>
                                                 <item.icon className="size-4" />
                                                 <span>{item.title}</span>
                                             </Link>
