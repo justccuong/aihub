@@ -82,7 +82,7 @@ export const PlaygroundContainer = () => {
             </div> */}
 
             {/* Main content with resizable panels */}
-            {/* <ResizablePanelGroup direction="horizontal" className="flex-1">
+            <ResizablePanelGroup direction="horizontal" className="flex-1">
                 <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
                     <div className="h-full border-r bg-muted/30">
                         <AgentConfigPanel
@@ -102,8 +102,7 @@ export const PlaygroundContainer = () => {
                         />
                     </div>
                 </ResizablePanel>
-            </ResizablePanelGroup> */}
-            Test
+            </ResizablePanelGroup>
         </div>
     )
 }
