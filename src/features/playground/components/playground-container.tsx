@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import dynamic from "next/dynamic"
 import { MessageCircleIcon, BotIcon } from "lucide-react"
 import {
     ResizablePanelGroup,
@@ -11,8 +12,21 @@ import { usePlaygroundParams } from "../hooks/use-playground-params"
 import { Spinner } from "@/components/ui/spinner"
 import { AgentSelector } from "./agent-selector"
 import { IntegrationDialog } from "./integration-dialog"
-import { PlaygroundChat } from "./playground-chat"
 import { AgentConfigPanel } from "./agent-config-panel"
+import type { PlaygroundChatProps } from "./playground-chat"
+
+// Dynamic import to exclude heavy AI SDK dependencies from SSR bundle
+const PlaygroundChat = dynamic<PlaygroundChatProps>(
+    () => import("./playground-chat").then(m => m.PlaygroundChat),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex h-full items-center justify-center">
+                <Spinner className="size-6" />
+            </div>
+        )
+    }
+)
 
 const NoAgentSelected = () => (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">

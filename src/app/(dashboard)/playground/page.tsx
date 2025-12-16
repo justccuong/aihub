@@ -3,8 +3,7 @@ import { requireAuth } from "@/lib/auth/utils"
 import { agentsListQueryOptions } from "@/features/agents/query-options"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { PlaygroundError, PlaygroundLoading } from "@/features/playground/components/playground-container"
-import { PlaygroundWrapper } from "@/features/playground/components/playground-wrapper"
+import { PlaygroundError, PlaygroundLoading, PlaygroundContainer } from "@/features/playground/components/playground-container"
 
 export default async function PlaygroundPage() {
     await requireAuth()
@@ -23,7 +22,7 @@ export default async function PlaygroundPage() {
             <div className="h-[100dvh] flex flex-col">
                 <ErrorBoundary fallback={<PlaygroundError />}>
                     <Suspense fallback={<PlaygroundLoading />}>
-                        <PlaygroundWrapper />
+                        <PlaygroundContainer />
                     </Suspense>
                 </ErrorBoundary>
             </div>
