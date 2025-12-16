@@ -127,8 +127,8 @@ export const DatasourcesHeader = ({ disabled }: { disabled?: boolean }) => {
         <>
             <div className="space-y-2">
                 <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" asChild>
-                    <Link href="/datasource-groups" prefetch>
-                        ← Back to Groups
+                    <Link href="/datasources" prefetch>
+                        ← Back to Datasources
                     </Link>
                 </Button>
                 <EntityHeader
