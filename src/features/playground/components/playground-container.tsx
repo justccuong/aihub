@@ -8,6 +8,8 @@ import { useState, useCallback } from "react"
 //     ResizableHandle,
 // } from "@/components/ui/resizable"
 import { usePlaygroundParams } from "../hooks/use-playground-params"
+import { Spinner } from "@/components/ui/spinner"
+import { BotIcon } from "lucide-react"
 // import dynamic from "next/dynamic"
 // import type { IntegrationDialogProps } from "./integration-dialog"
 // import type { AgentConfigPanelProps } from "./agent-config-panel"
@@ -51,6 +53,20 @@ import { usePlaygroundParams } from "../hooks/use-playground-params"
 //         </div>
 //     </div>
 // )
+
+export const PlaygroundLoading = () => (
+    <div className="flex h-full items-center justify-center">
+        <Spinner className="size-6" />
+    </div>
+)
+
+export const PlaygroundError = () => (
+    <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+        <BotIcon className="size-8" />
+        <p className="text-sm">Failed to load playground</p>
+    </div>
+)
+
 export const PlaygroundContainer = () => {
     const [agentId] = usePlaygroundParams()
     const [customConfig, setCustomConfig] = useState<{
