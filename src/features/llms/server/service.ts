@@ -4,6 +4,7 @@ import { llms } from '@/lib/schema'
 import { eq, like, or, desc, asc, sql } from 'drizzle-orm'
 import { llmsQuerySchema } from '../params'
 import { createLlmSchema } from './routers'
+import { llmsLogger as logger } from '@/lib/logger'
 
 // Infer types from existing schemas (single source of truth)
 export type ListLlmsParams = z.infer<typeof llmsQuerySchema>
@@ -14,6 +15,7 @@ export type UpdateLlmInput = Partial<CreateLlmInput>
  * List LLMs with pagination and search
  */
 export async function listLlms(params: ListLlmsParams) {
+    logger.info('Listing LLMs', { page: params.page, pageSize: params.pageSize, search: params.search })
     const db = await getDb()
     const { page, pageSize, search, sortBy, sortOrder } = params
     const offset = (page - 1) * pageSize
@@ -53,6 +55,7 @@ export async function listLlms(params: ListLlmsParams) {
         .limit(pageSize)
         .offset(offset)
 
+    logger.info('Listed LLMs successfully', { total, page, pageSize })
     return {
         data,
         pagination: {
@@ -68,6 +71,7 @@ export async function listLlms(params: ListLlmsParams) {
  * Get LLM by ID
  */
 export async function getLlmById(id: number) {
+    logger.info('Getting LLM by ID', { llmId: id })
     const db = await getDb()
     const result = await db
         .select()
@@ -75,6 +79,9 @@ export async function getLlmById(id: number) {
         .where(eq(llms.id, id))
         .limit(1)
 
+    if (!result[0]) {
+        logger.warn('LLM not found', { llmId: id })
+    }
     return result[0] || null
 }
 
@@ -82,6 +89,7 @@ export async function getLlmById(id: number) {
  * Check if an LLM exists
  */
 export async function llmExists(id: number) {
+    logger.debug('Checking if LLM exists', { llmId: id })
     const db = await getDb()
     const existing = await db
         .select()
@@ -95,8 +103,10 @@ export async function llmExists(id: number) {
  * Create a new LLM
  */
 export async function createLlm(data: CreateLlmInput) {
+    logger.info('Creating LLM', { name: data.name, provider: data.provider, model: data.model })
     const db = await getDb()
     const result = await db.insert(llms).values(data).returning()
+    logger.info('LLM created successfully', { llmId: result[0].id, name: result[0].name })
     return result[0]
 }
 
@@ -104,6 +114,7 @@ export async function createLlm(data: CreateLlmInput) {
  * Update an LLM
  */
 export async function updateLlm(id: number, data: UpdateLlmInput) {
+    logger.info('Updating LLM', { llmId: id })
     const db = await getDb()
     const result = await db
         .update(llms)
@@ -111,6 +122,7 @@ export async function updateLlm(id: number, data: UpdateLlmInput) {
         .where(eq(llms.id, id))
         .returning()
 
+    logger.info('LLM updated successfully', { llmId: id })
     return result[0]
 }
 
@@ -118,6 +130,8 @@ export async function updateLlm(id: number, data: UpdateLlmInput) {
  * Delete an LLM
  */
 export async function deleteLlm(id: number) {
+    logger.info('Deleting LLM', { llmId: id })
     const db = await getDb()
     await db.delete(llms).where(eq(llms.id, id))
+    logger.info('LLM deleted successfully', { llmId: id })
 }

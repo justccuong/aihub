@@ -5,6 +5,7 @@ import { eq, like, or, desc, asc, sql, inArray } from 'drizzle-orm'
 import { agentsQuerySchema } from '../params'
 import { createAgentSchema } from './routers'
 import { getKV, putKV, deleteKV } from '@/lib/kv'
+import { agentsLogger as logger } from '@/lib/logger'
 
 // Infer types from existing schemas (single source of truth)
 export type ListAgentsParams = z.infer<typeof agentsQuerySchema>
@@ -27,6 +28,7 @@ function getAgentCacheKey(id: number): string {
  * Invalidate agent cache
  */
 export async function invalidateAgentCache(id: number): Promise<void> {
+    logger.info('Invalidating agent cache', { agentId: id })
     const cacheKey = getAgentCacheKey(id)
     await deleteKV(cacheKey)
 }
@@ -35,6 +37,7 @@ export async function invalidateAgentCache(id: number): Promise<void> {
  * Invalidate agent caches for all agents using a specific LLM
  */
 export async function invalidateAgentCachesByLlmId(llmId: number): Promise<void> {
+    logger.info('Invalidating agent caches by LLM ID', { llmId })
     const db = await getDb()
 
     // Find all agents using this LLM
@@ -42,6 +45,8 @@ export async function invalidateAgentCachesByLlmId(llmId: number): Promise<void>
         .select({ id: agents.id })
         .from(agents)
         .where(eq(agents.llmId, llmId))
+
+    logger.info('Found agents using LLM', { llmId, count: agentsUsingLlm.length })
 
     // Invalidate cache for each agent
     await Promise.all(
@@ -53,6 +58,7 @@ export async function invalidateAgentCachesByLlmId(llmId: number): Promise<void>
  * Invalidate agent caches for all agents using a specific datasource group
  */
 export async function invalidateAgentCachesByDatasourceGroupId(datasourceGroupId: number): Promise<void> {
+    logger.info('Invalidating agent caches by datasource group ID', { datasourceGroupId })
     const db = await getDb()
 
     // Find all agents using this datasource group
@@ -60,6 +66,8 @@ export async function invalidateAgentCachesByDatasourceGroupId(datasourceGroupId
         .select({ agentId: agentDatasourceGroups.agentId })
         .from(agentDatasourceGroups)
         .where(eq(agentDatasourceGroups.datasourceGroupId, datasourceGroupId))
+
+    logger.info('Found agents using datasource group', { datasourceGroupId, count: agentsUsingGroup.length })
 
     // Invalidate cache for each agent
     await Promise.all(
@@ -98,6 +106,7 @@ export async function getAgentDatasourceGroupsMap(agentIds: number[]) {
  * List agents with pagination and search
  */
 export async function listAgents(params: ListAgentsParams) {
+    logger.info('Listing agents', { page: params.page, pageSize: params.pageSize, search: params.search })
     const db = await getDb()
     const { page, pageSize, search, sortBy, sortOrder } = params
     const offset = (page - 1) * pageSize
@@ -157,6 +166,7 @@ export async function listAgents(params: ListAgentsParams) {
         datasourceGroups: datasourceGroupsMap[agent.id] || [],
     }))
 
+    logger.info('Listed agents successfully', { total, page, pageSize })
     return {
         data: enrichedData,
         pagination: {
@@ -224,29 +234,35 @@ export type AgentDetail = Awaited<ReturnType<typeof fetchAgentFromDb>>
  * Get agent by ID with LLM and datasource groups (cached, 15 min TTL)
  */
 export async function getAgentById(id: number) {
+    logger.info('Getting agent by ID', { agentId: id })
     const cacheKey = getAgentCacheKey(id)
 
     // Try to get from cache
     try {
         const cached = await getKV<ReturnType<typeof fetchAgentFromDb>>(cacheKey, 'json')
         if (cached) {
+            logger.info('Agent found in cache', { agentId: id })
             return cached
         }
     } catch (error) {
-        console.error('Error reading from cache:', error)
+        logger.error('Error reading from cache', { agentId: id, error: String(error) })
         // Continue to fetch from DB if cache fails
     }
 
     // Fetch from database
+    logger.info('Fetching agent from database', { agentId: id })
     const agent = await fetchAgentFromDb(id)
 
     // Cache the result (even null to prevent repeated DB queries for non-existent IDs)
     if (agent) {
         try {
             await putKV(cacheKey, JSON.stringify(agent), { expirationTtl: CACHE_TTL_SECONDS })
+            logger.info('Agent cached successfully', { agentId: id })
         } catch (error) {
-            console.error('Error writing to cache:', error)
+            logger.error('Error writing to cache', { agentId: id, error: String(error) })
         }
+    } else {
+        logger.warn('Agent not found', { agentId: id })
     }
 
     return agent
@@ -256,6 +272,7 @@ export async function getAgentById(id: number) {
  * Create a new agent with optional datasource group associations
  */
 export async function createAgent(data: AgentData, datasourceGroupIds?: number[]) {
+    logger.info('Creating agent', { name: data.name, datasourceGroupIds })
     const db = await getDb()
 
     // Create agent
@@ -270,10 +287,10 @@ export async function createAgent(data: AgentData, datasourceGroupIds?: number[]
                 datasourceGroupId: groupId,
             }))
         )
+        logger.info('Created datasource group associations', { agentId: newAgent.id, count: datasourceGroupIds.length })
     }
 
-    // No cache invalidation needed for create - new ID won't be in cache
-
+    logger.info('Agent created successfully', { agentId: newAgent.id, name: newAgent.name })
     return newAgent
 }
 
@@ -294,6 +311,7 @@ export async function agentExists(id: number) {
  * Update an agent with optional datasource group sync
  */
 export async function updateAgent(id: number, data: UpdateAgentData, datasourceGroupIds?: number[]) {
+    logger.info('Updating agent', { agentId: id, datasourceGroupIds })
     const db = await getDb()
 
     // Update agent fields
@@ -317,11 +335,13 @@ export async function updateAgent(id: number, data: UpdateAgentData, datasourceG
                 }))
             )
         }
+        logger.info('Updated datasource group associations', { agentId: id, count: datasourceGroupIds.length })
     }
 
     // Invalidate cache after update
     await invalidateAgentCache(id)
 
+    logger.info('Agent updated successfully', { agentId: id })
     return result[0]
 }
 
@@ -329,9 +349,11 @@ export async function updateAgent(id: number, data: UpdateAgentData, datasourceG
  * Delete an agent (junction table entries cascade automatically)
  */
 export async function deleteAgent(id: number) {
+    logger.info('Deleting agent', { agentId: id })
     const db = await getDb()
     await db.delete(agents).where(eq(agents.id, id))
 
     // Invalidate cache after delete
     await invalidateAgentCache(id)
+    logger.info('Agent deleted successfully', { agentId: id })
 }

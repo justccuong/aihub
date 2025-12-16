@@ -5,6 +5,7 @@ import {
     BotIcon,
     BotMessageSquareIcon,
     LogOutIcon,
+    PlayIcon,
 } from "lucide-react"
 import {
     Sidebar,
@@ -31,6 +32,7 @@ const menuItems = [
             { title: "LLMs", icon: BotIcon, url: "/llms" },
             { title: "Datasource", icon: BookIcon, url: "/datasources" },
             { title: "Agents", icon: BotMessageSquareIcon, url: "/agents" },
+            { title: "Playground", icon: PlayIcon, url: "/playground" },
         ],
     },
 ]
