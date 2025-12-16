@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useTheme } from 'next-themes';
 
 import { cn } from '@/lib/utils';
@@ -14,6 +13,7 @@ import {
   type TabsProps,
 } from '@/components/ui/shadcn-io/tabs';
 import { CopyButton } from '@/components/ui/shadcn-io/copy-button';
+import { useEffect, useMemo, useState } from 'react';
 
 type CodeTabsProps = {
   codes: Record<string, string>;
@@ -46,12 +46,12 @@ function CodeTabsContent({
   const { resolvedTheme } = useTheme();
   const { activeValue } = useTabs();
 
-  const [highlightedCodes, setHighlightedCodes] = React.useState<Record<
+  const [highlightedCodes, setHighlightedCodes] = useState<Record<
     string,
     string
   >>(codes); // Start with raw codes for instant rendering
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadHighlightedCode() {
       try {
         const { codeToHtml } = await import('shiki');
@@ -146,7 +146,7 @@ function CodeTabs({
   onCopy,
   ...props
 }: CodeTabsProps) {
-  const firstKey = React.useMemo(() => Object.keys(codes)[0] ?? '', [codes]);
+  const firstKey = useMemo(() => Object.keys(codes)[0] ?? '', [codes]);
 
   // Handle controlled vs uncontrolled properly
   const tabsProps = value !== undefined

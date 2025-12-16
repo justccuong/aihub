@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { motion, type Transition, type HTMLMotionProps } from 'motion/react';
 
 import { cn } from '@/lib/utils';
@@ -8,6 +7,7 @@ import {
   MotionHighlight,
   MotionHighlightItem,
 } from '@/components/ui/shadcn-io/motion-highlight';
+import { Children, ComponentProps, createContext, isValidElement, ReactElement, ReactNode, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 // Tabs Component
 type TabsContextType<T extends string> = {
@@ -17,20 +17,20 @@ type TabsContextType<T extends string> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const TabsContext = React.createContext<TabsContextType<any> | undefined>(
+const TabsContext = createContext<TabsContextType<any> | undefined>(
   undefined,
 );
 
 function useTabs<T extends string = string>(): TabsContextType<T> {
-  const context = React.useContext(TabsContext);
+  const context = useContext(TabsContext);
   if (!context) {
     throw new Error('useTabs must be used within a TabsProvider');
   }
   return context;
 }
 
-type BaseTabsProps = React.ComponentProps<'div'> & {
-  children: React.ReactNode;
+type BaseTabsProps = ComponentProps<'div'> & {
+  children: ReactNode;
 };
 
 type UnControlledTabsProps<T extends string = string> = BaseTabsProps & {
@@ -57,14 +57,14 @@ function Tabs<T extends string = string>({
   className,
   ...props
 }: TabsProps<T>) {
-  const [activeValue, setActiveValue] = React.useState<T | undefined>(
+  const [activeValue, setActiveValue] = useState<T | undefined>(
     defaultValue ?? undefined,
   );
-  const triggersRef = React.useRef(new Map<string, HTMLElement>());
-  const initialSet = React.useRef(false);
+  const triggersRef = useRef(new Map<string, HTMLElement>());
+  const initialSet = useRef(false);
   const isControlled = value !== undefined;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       !isControlled &&
       activeValue === undefined &&
@@ -113,8 +113,8 @@ function Tabs<T extends string = string>({
   );
 }
 
-type TabsListProps = React.ComponentProps<'div'> & {
-  children: React.ReactNode;
+type TabsListProps = ComponentProps<'div'> & {
+  children: ReactNode;
   activeClassName?: string;
   transition?: Transition;
 };
@@ -156,7 +156,7 @@ function TabsList({
 
 type TabsTriggerProps = HTMLMotionProps<'button'> & {
   value: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 function TabsTrigger({
@@ -168,10 +168,10 @@ function TabsTrigger({
 }: TabsTriggerProps) {
   const { activeValue, handleValueChange, registerTrigger } = useTabs();
 
-  const localRef = React.useRef<HTMLButtonElement | null>(null);
-  React.useImperativeHandle(ref as any, () => localRef.current as HTMLButtonElement);
+  const localRef = useRef<HTMLButtonElement | null>(null);
+  useImperativeHandle(ref as any, () => localRef.current as HTMLButtonElement);
 
-  React.useEffect(() => {
+  useEffect(() => {
     registerTrigger(value, localRef.current);
     return () => registerTrigger(value, null);
   }, [value, registerTrigger]);
@@ -197,8 +197,8 @@ function TabsTrigger({
   );
 }
 
-type TabsContentsProps = React.ComponentProps<'div'> & {
-  children: React.ReactNode;
+type TabsContentsProps = ComponentProps<'div'> & {
+  children: ReactNode;
   transition?: Transition;
 };
 
@@ -215,10 +215,10 @@ function TabsContents({
   ...props
 }: TabsContentsProps) {
   const { activeValue } = useTabs();
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
   const activeIndex = childrenArray.findIndex(
-    (child): child is React.ReactElement<{ value: string }> =>
-      React.isValidElement(child) &&
+    (child): child is ReactElement<{ value: string }> =>
+      isValidElement(child) &&
       typeof child.props === 'object' &&
       child.props !== null &&
       'value' in child.props &&
@@ -248,7 +248,7 @@ function TabsContents({
 
 type TabsContentProps = HTMLMotionProps<'div'> & {
   value: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 function TabsContent({

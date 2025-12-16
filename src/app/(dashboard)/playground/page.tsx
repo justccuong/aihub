@@ -9,7 +9,7 @@ export default async function PlaygroundPage() {
     // Prefetch agents list for the selector
     prefetch(agentsListQueryOptions({
         page: 1,
-        pageSize: 100,
+        pageSize: 20,
         search: "",
         sortBy: "name",
         sortOrder: "asc",

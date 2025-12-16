@@ -73,7 +73,7 @@ export const PlaygroundContainer = () => {
                 <div className="flex-1 max-w-sm">
                     <AgentSelector />
                 </div>
-                {/* <IntegrationDialog agentId={agentId} /> */}
+                <IntegrationDialog agentId={agentId} />
             </div>
 
             {/* Main content with resizable panels */}
