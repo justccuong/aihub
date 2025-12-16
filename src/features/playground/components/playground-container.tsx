@@ -10,7 +10,7 @@ import {
 import { usePlaygroundParams } from "../hooks/use-playground-params"
 import { Spinner } from "@/components/ui/spinner"
 import { AgentSelector } from "./agent-selector"
-// import { IntegrationDialog } from "./integration-dialog"
+import { IntegrationDialog } from "./integration-dialog"
 import { PlaygroundChat } from "./playground-chat"
 import { AgentConfigPanel } from "./agent-config-panel"
 
@@ -69,12 +69,12 @@ export const PlaygroundContainer = () => {
     return (
         <div className="flex flex-col h-full">
             {/* Top bar with agent selector */}
-            {/* <div className="flex items-center justify-between gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center justify-between gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="flex-1 max-w-sm">
                     <AgentSelector />
                 </div>
                 <IntegrationDialog agentId={agentId} />
-            </div> */}
+            </div>
 
             {/* Main content with resizable panels */}
             <ResizablePanelGroup direction="horizontal" className="flex-1">
