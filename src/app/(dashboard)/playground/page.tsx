@@ -1,9 +1,19 @@
+import dynamic from "next/dynamic"
 import { HydrateClient, prefetch } from "@/lib/api/hydrate-client"
 import { requireAuth } from "@/lib/auth/utils"
 import { agentsListQueryOptions } from "@/features/agents/query-options"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { PlaygroundError, PlaygroundLoading, PlaygroundContainer } from "@/features/playground/components/playground-container"
+import { PlaygroundError, PlaygroundLoading } from "@/features/playground/components/playground-container"
+
+// Dynamic import to exclude heavy AI SDK dependencies from SSR bundle
+const PlaygroundContainer = dynamic(
+    () => import("@/features/playground/components/playground-container").then(m => m.PlaygroundContainer),
+    {
+        ssr: false,
+        loading: () => <PlaygroundLoading />
+    }
+)
 
 export default async function PlaygroundPage() {
     await requireAuth()
