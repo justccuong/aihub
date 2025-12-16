@@ -1,4 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { convertToModelMessages, generateText, stepCountIs, streamText, tool, UIMessage } from "ai"
 import z from "zod"
 import { searchVectors } from "@/lib/vectorize"
@@ -17,6 +18,11 @@ export const createAIProvider = ({ llm }: AgentDetailResolved) => {
     switch (llm.provider) {
         case "openai":
             return createOpenAI({
+                baseURL: llm.baseUrl,
+                apiKey: llm.apiKey,
+            });
+        case "google":
+            return createGoogleGenerativeAI({
                 baseURL: llm.baseUrl,
                 apiKey: llm.apiKey,
             });

@@ -27,7 +27,7 @@ export enum Path {
 export const AI_PROVIDERS = [
     { slug: "openai", name: "OpenAI", defaultBaseUrl: "https://api.openai.com/v1" },
     // { slug: "anthropic", name: "Anthropic", defaultBaseUrl: "https://api.anthropic.com/v1" },
-    // { slug: "google", name: "Google", defaultBaseUrl: "https://generativelanguage.googleapis.com/v1beta" },
+    { slug: "google", name: "Google", defaultBaseUrl: "https://generativelanguage.googleapis.com/v1beta" },
     // { slug: "ollama", name: "Ollama", defaultBaseUrl: "http://localhost:11434/v1" },
 ] as const;
 
@@ -54,10 +54,10 @@ export const AI_MODELS: readonly {
         // { id: "claude-sonnet-4-20250514", name: "Claude 4 Sonnet", chef: "Anthropic", chefSlug: "anthropic", providers: ["anthropic"] },
         // { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet", chef: "Anthropic", chefSlug: "anthropic", providers: ["anthropic"] },
         // { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku", chef: "Anthropic", chefSlug: "anthropic", providers: ["anthropic"] },
-        // // Google
-        // { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash", chef: "Google", chefSlug: "google", providers: ["google"] },
-        // { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", chef: "Google", chefSlug: "google", providers: ["google"] },
-        // { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", chef: "Google", chefSlug: "google", providers: ["google"] },
+        // Google
+        { id: "gemini-3-pro-preview", name: "Gemini 3 Pro Preview", chef: "Google", chefSlug: "google", providers: ["google"] },
+        { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", chef: "Google", chefSlug: "google", providers: ["google"] },
+        { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", chef: "Google", chefSlug: "google", providers: ["google"] },
         // // Ollama (local models)
         // { id: "llama3.2", name: "Llama 3.2", chef: "Ollama", chefSlug: "ollama", providers: ["ollama"] },
         // { id: "llama3.1", name: "Llama 3.1", chef: "Ollama", chefSlug: "ollama", providers: ["ollama"] },
