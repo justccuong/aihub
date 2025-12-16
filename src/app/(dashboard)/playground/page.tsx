@@ -5,25 +5,26 @@ import { agentsListQueryOptions } from "@/features/agents/query-options"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { PlaygroundError, PlaygroundLoading } from "@/features/playground/components/playground-container"
+import TestComp from "@/features/playground/components/test-comp"
 
 export default async function PlaygroundPage() {
     await requireAuth()
 
     // Prefetch agents list for the selector
-    // prefetch(agentsListQueryOptions({
-    //     page: 1,
-    //     pageSize: 20,
-    //     search: "",
-    //     sortBy: "name",
-    //     sortOrder: "asc",
-    // }))
+    prefetch(agentsListQueryOptions({
+        page: 1,
+        pageSize: 20,
+        search: "",
+        sortBy: "name",
+        sortOrder: "asc",
+    }))
 
     return (
         <HydrateClient>
             <div className="h-[100dvh] flex flex-col">
                 <ErrorBoundary fallback={<PlaygroundError />}>
                     <Suspense fallback={<PlaygroundLoading />}>
-                        <PlaygroundContainer />
+                        <TestComp />
                     </Suspense>
                 </ErrorBoundary>
             </div>
