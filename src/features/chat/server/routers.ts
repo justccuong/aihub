@@ -7,6 +7,7 @@ import { generateAIResponse, streamAIResponse } from "./service";
 import { getLlmById } from "@/features/llms/server/service";
 import { getAgentById } from "@/features/agents/server/service";
 import { agentParams } from "../params";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const chatRequestSchema = z.object({
     stream: z.boolean().default(false),
@@ -82,6 +83,12 @@ export const chatRouter = new Hono()
         }
     })
     .post("/completions/:agentId", zValidator('json', chatRequestSchema), zValidator('param', agentParams), async (c) => {
+        const { env } = await getCloudflareContext({ async: true });
+        const ipAddress = c.req.header("cf-connecting-ip") || ""
+        const { success } = await env.AIHUB_RATE_LIMITER.limit({ key: ipAddress })
+        if (!success) {
+            return c.json({ error: 'Rate limit exceeded' }, 429)
+        }
         const { agentId } = c.req.valid("param")
         const { messages, stream } = c.req.valid("json")
 

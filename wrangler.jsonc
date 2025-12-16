@@ -61,6 +61,16 @@
 			"id": "ba3bf1d163684c5691fddd0ab4ba65c1",
 			"remote": true
 		}
+	],
+	"ratelimits": [
+		{
+			"name": "AIHUB_RATE_LIMITER",
+			"namespace_id": "1001",
+			"simple": {
+				"limit": 50,
+				"period": 60
+			}
+		}
 	]
 	/**
 	 * Smart Placement
