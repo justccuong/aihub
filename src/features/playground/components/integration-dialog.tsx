@@ -27,7 +27,7 @@ import { useState } from "react"
 export default function Chat() {
     const [input, setInput] = useState("")
     const { messages, sendMessage } = useChat({
-        api: "${window.location.origin}/api/chat/completions/${agentId}",
+        api: "${"https://aihub.jsclub.dev"}/api/chat/completions/${agentId}",
     })
 
     return (
@@ -62,7 +62,7 @@ export default function Chat() {
     )
 }`,
         "cURL": `curl --request POST \\
-  --url ${window.location.origin}/api/chat/completions/${agentId} \\
+  --url ${"https://aihub.jsclub.dev"}/api/chat/completions/${agentId} \\
   --header 'content-type: application/json' \\
   --data '{
   "stream": true,
