@@ -1,10 +1,9 @@
-import { PlaygroundContainer } from "@/features/playground/components/playground-container"
 import { HydrateClient, prefetch } from "@/lib/api/hydrate-client"
 import { requireAuth } from "@/lib/auth/utils"
 import { agentsListQueryOptions } from "@/features/agents/query-options"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { PlaygroundError, PlaygroundLoading } from "@/features/playground/components/playground-container"
+import { PlaygroundError, PlaygroundLoading, PlaygroundContainer } from "@/features/playground/components/playground-container"
 
 export default async function PlaygroundPage() {
     await requireAuth()
