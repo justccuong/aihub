@@ -11,8 +11,13 @@ import { usePlaygroundParams } from "../hooks/use-playground-params"
 import { AgentSelector } from "./agent-selector"
 import { AgentConfigPanel } from "./agent-config-panel"
 import { PlaygroundChat } from "./playground-chat"
-import { IntegrationDialog } from "./integration-dialog"
-import { Spinner } from "@/components/ui/spinner"
+import dynamic from "next/dynamic"
+import { IntegrationDialogProps } from "./integration-dialog"
+
+const IntegrationDialog = dynamic<IntegrationDialogProps>(
+    () => import("./integration-dialog").then((mod) => mod.IntegrationDialog),
+    { ssr: false }
+)
 
 const NoAgentSelected = () => (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">

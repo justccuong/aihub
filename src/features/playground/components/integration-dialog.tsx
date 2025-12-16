@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { CodeTabs } from "@/components/ui/shadcn-io/code-tabs"
 
-interface IntegrationDialogProps {
+export interface IntegrationDialogProps {
     agentId: number
 }
 
