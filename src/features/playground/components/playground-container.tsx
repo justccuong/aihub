@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/resizable"
 import { usePlaygroundParams } from "../hooks/use-playground-params"
 import dynamic from "next/dynamic"
-import type { IntegrationDialogProps } from "./integration-dialog"
+// import type { IntegrationDialogProps } from "./integration-dialog"
 import type { AgentConfigPanelProps } from "./agent-config-panel"
 import type { PlaygroundChatProps } from "./playground-chat"
 
@@ -19,10 +19,10 @@ const AgentSelector = dynamic(
     { ssr: false }
 )
 
-const IntegrationDialog = dynamic<IntegrationDialogProps>(
-    () => import("./integration-dialog").then((mod) => mod.IntegrationDialog),
-    { ssr: false }
-)
+// const IntegrationDialog = dynamic<IntegrationDialogProps>(
+//     () => import("./integration-dialog").then((mod) => mod.IntegrationDialog),
+//     { ssr: false }
+// )
 
 const AgentConfigPanel = dynamic<AgentConfigPanelProps>(
     () => import("./agent-config-panel").then((mod) => mod.AgentConfigPanel),
