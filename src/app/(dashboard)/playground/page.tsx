@@ -18,8 +18,7 @@ export default async function PlaygroundPage() {
     return (
         <HydrateClient>
             <div className="h-[100dvh] flex flex-col">
-                {/* <PlaygroundContainer /> */}
-                Playground page
+                <PlaygroundContainer />
             </div>
         </HydrateClient>
     )
