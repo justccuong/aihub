@@ -1,4 +1,4 @@
-// "use client"
+"use client"
 
 import { useState, useCallback } from "react"
 import { MessageCircleIcon, BotIcon } from "lucide-react"
@@ -9,28 +9,28 @@ import { MessageCircleIcon, BotIcon } from "lucide-react"
 // } from "@/components/ui/resizable"
 import { usePlaygroundParams } from "../hooks/use-playground-params"
 import { Spinner } from "@/components/ui/spinner"
-// import { AgentSelector } from "./agent-selector"
+import { AgentSelector } from "./agent-selector"
 // import { IntegrationDialog } from "./integration-dialog"
 // import { PlaygroundChat } from "./playground-chat"
 // import { AgentConfigPanel } from "./agent-config-panel"
 
-// const NoAgentSelected = () => (
-//     <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
-//         <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center">
-//             <MessageCircleIcon className="size-8 text-primary" />
-//         </div>
-//         <div className="space-y-2">
-//             <h2 className="text-xl font-semibold">Select an Agent</h2>
-//             <p className="text-muted-foreground max-w-md">
-//                 Choose an agent from the dropdown above to start chatting.
-//                 You can configure the agent settings and test conversations.
-//             </p>
-//         </div>
-//         <div className="w-full max-w-sm pt-4">
-//             <AgentSelector />
-//         </div>
-//     </div>
-// )
+const NoAgentSelected = () => (
+    <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
+        <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <MessageCircleIcon className="size-8 text-primary" />
+        </div>
+        <div className="space-y-2">
+            <h2 className="text-xl font-semibold">Select an Agent</h2>
+            <p className="text-muted-foreground max-w-md">
+                Choose an agent from the dropdown above to start chatting.
+                You can configure the agent settings and test conversations.
+            </p>
+        </div>
+        <div className="w-full max-w-sm pt-4">
+            <AgentSelector />
+        </div>
+    </div>
+)
 
 export const PlaygroundLoading = () => (
     <div className="flex h-full items-center justify-center">
@@ -62,8 +62,8 @@ export const PlaygroundContainer = () => {
 
     // No agent selected - show selector
     if (!agentId) {
-        // return <NoAgentSelected />
-        return "No agent"
+        return <NoAgentSelected />
+        // return "No agent"
     }
 
     return (
