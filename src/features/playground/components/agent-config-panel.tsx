@@ -56,7 +56,7 @@ const configFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof configFormSchema>
 
-interface AgentConfigPanelProps {
+export interface AgentConfigPanelProps {
     agentId: number
     onConfigChange?: (config: Partial<ConfigFormValues>) => void
 }

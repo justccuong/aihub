@@ -8,11 +8,26 @@ import {
     ResizableHandle,
 } from "@/components/ui/resizable"
 import { usePlaygroundParams } from "../hooks/use-playground-params"
-import { AgentSelector } from "./agent-selector"
-import { AgentConfigPanel } from "./agent-config-panel"
-import { PlaygroundChat } from "./playground-chat"
 import dynamic from "next/dynamic"
-import { IntegrationDialogProps } from "./integration-dialog"
+import type { IntegrationDialogProps } from "./integration-dialog"
+import type { AgentConfigPanelProps } from "./agent-config-panel"
+import type { PlaygroundChatProps } from "./playground-chat"
+
+// Dynamically import all heavy components to reduce bundle size
+const AgentSelector = dynamic(
+    () => import("./agent-selector").then((mod) => mod.AgentSelector),
+    { ssr: false }
+)
+
+const AgentConfigPanel = dynamic<AgentConfigPanelProps>(
+    () => import("./agent-config-panel").then((mod) => mod.AgentConfigPanel),
+    { ssr: false }
+)
+
+const PlaygroundChat = dynamic<PlaygroundChatProps>(
+    () => import("./playground-chat").then((mod) => mod.PlaygroundChat),
+    { ssr: false }
+)
 
 const IntegrationDialog = dynamic<IntegrationDialogProps>(
     () => import("./integration-dialog").then((mod) => mod.IntegrationDialog),

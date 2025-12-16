@@ -30,7 +30,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-interface PlaygroundChatProps {
+export interface PlaygroundChatProps {
     agentId: number
     customConfig?: {
         llmId?: number

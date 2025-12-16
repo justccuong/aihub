@@ -1,7 +1,5 @@
 'use client';
 
-import { useTheme } from 'next-themes';
-
 import { cn } from '@/lib/utils';
 import {
   Tabs,
@@ -13,15 +11,11 @@ import {
   type TabsProps,
 } from '@/components/ui/shadcn-io/tabs';
 import { CopyButton } from '@/components/ui/shadcn-io/copy-button';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 type CodeTabsProps = {
   codes: Record<string, string>;
   lang?: string;
-  themes?: {
-    light: string;
-    dark: string;
-  };
   copyButton?: boolean;
   /** Called when copy is attempted. Return false to prevent copy action. */
   onCopy?: (content: string) => void | boolean;
@@ -30,54 +24,17 @@ type CodeTabsProps = {
 function CodeTabsContent({
   codes,
   lang = 'bash',
-  themes = {
-    light: 'github-light',
-    dark: 'github-dark',
-  },
   copyButton = true,
   onCopy,
 }: {
   codes: Record<string, string>;
   lang?: string;
-  themes?: { light: string; dark: string };
   copyButton?: boolean;
   onCopy?: (content: string) => void | boolean;
 }) {
-  const { resolvedTheme } = useTheme();
   const { activeValue } = useTabs();
 
-  const [highlightedCodes, setHighlightedCodes] = useState<Record<
-    string,
-    string
-  >>(codes); // Start with raw codes for instant rendering
-
-  useEffect(() => {
-    async function loadHighlightedCode() {
-      try {
-        const { getHighlighter } = await import('@/lib/shiki');
-        const highlighter = await getHighlighter();
-        const newHighlightedCodes: Record<string, string> = {};
-
-        for (const [command, val] of Object.entries(codes)) {
-          const highlighted = highlighter.codeToHtml(val, {
-            lang,
-            themes: {
-              light: themes.light,
-              dark: themes.dark,
-            },
-            defaultColor: resolvedTheme === 'dark' ? 'dark' : 'light',
-          });
-
-          newHighlightedCodes[command] = highlighted;
-        }
-
-        setHighlightedCodes(newHighlightedCodes);
-      } catch (error) {
-        console.error('Error highlighting codes', error);
-      }
-    }
-    loadHighlightedCode();
-  }, [resolvedTheme, lang, themes.light, themes.dark, codes]);
+  // No syntax highlighting needed - just display raw code
 
   return (
     <>
@@ -116,14 +73,10 @@ function CodeTabsContent({
             className="w-full text-sm flex items-start p-4 max-h-[50vh] overflow-y-auto"
             value={code}
           >
-            <div className="w-full [&>pre]:m-0 [&>pre]:p-0 [&>pre]:bg-transparent! [&>pre]:border-none [&>pre]:text-[13px] [&>pre]:leading-relaxed [&_code]:text-[13px] [&_code]:leading-relaxed [&_code]:bg-transparent! [&_.shiki]:bg-transparent!">
-              {highlightedCodes[code] !== rawCode ? (
-                <div dangerouslySetInnerHTML={{ __html: highlightedCodes[code] }} />
-              ) : (
-                <pre>
-                  <code>{rawCode}</code>
-                </pre>
-              )}
+            <div className="w-full [&>pre]:m-0 [&>pre]:p-0 [&>pre]:bg-transparent! [&>pre]:border-none [&>pre]:text-[13px] [&>pre]:leading-relaxed [&_code]:text-[13px] [&_code]:leading-relaxed [&_code]:bg-transparent!">
+              <pre>
+                <code>{rawCode}</code>
+              </pre>
             </div>
           </TabsContent>
         ))}
@@ -135,10 +88,6 @@ function CodeTabsContent({
 function CodeTabs({
   codes,
   lang = 'bash',
-  themes = {
-    light: 'github-light',
-    dark: 'github-dark',
-  },
   className,
   defaultValue,
   value,
@@ -167,7 +116,6 @@ function CodeTabs({
       <CodeTabsContent
         codes={codes}
         lang={lang}
-        themes={themes}
         copyButton={copyButton}
         onCopy={onCopy}
       />
