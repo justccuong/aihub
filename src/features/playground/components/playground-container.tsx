@@ -10,8 +10,8 @@ import {
 import { usePlaygroundParams } from "../hooks/use-playground-params"
 import dynamic from "next/dynamic"
 import type { IntegrationDialogProps } from "./integration-dialog"
-import { AgentConfigPanel, type AgentConfigPanelProps } from "./agent-config-panel"
-import { PlaygroundChat, type PlaygroundChatProps } from "./playground-chat"
+import type { AgentConfigPanelProps } from "./agent-config-panel"
+import type { PlaygroundChatProps } from "./playground-chat"
 
 // Dynamically import all heavy components to reduce bundle size
 const AgentSelector = dynamic(
@@ -21,6 +21,16 @@ const AgentSelector = dynamic(
 
 const IntegrationDialog = dynamic<IntegrationDialogProps>(
     () => import("./integration-dialog").then((mod) => mod.IntegrationDialog),
+    { ssr: false }
+)
+
+const AgentConfigPanel = dynamic<AgentConfigPanelProps>(
+    () => import("./agent-config-panel").then((mod) => mod.AgentConfigPanel),
+    { ssr: false }
+)
+
+const PlaygroundChat = dynamic<PlaygroundChatProps>(
+    () => import("./playground-chat").then((mod) => mod.PlaygroundChat),
     { ssr: false }
 )
 
