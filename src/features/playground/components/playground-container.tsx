@@ -89,14 +89,14 @@ export const PlaygroundContainer = () => {
 
                 <ResizableHandle withHandle />
 
-                <ResizablePanel defaultSize={70} minSize={40}>
+                {/* <ResizablePanel defaultSize={70} minSize={40}>
                     <div className="h-full bg-background">
                         <PlaygroundChat
                             agentId={agentId}
                             customConfig={customConfig}
                         />
                     </div>
-                </ResizablePanel>
+                </ResizablePanel> */}
             </ResizablePanelGroup>
         </div>
     )
