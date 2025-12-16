@@ -22,17 +22,29 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+    ModelSelector,
+    ModelSelectorContent,
+    ModelSelectorEmpty,
+    ModelSelectorGroup,
+    ModelSelectorInput,
+    ModelSelectorItem,
+    ModelSelectorList,
+    ModelSelectorLogo,
+    ModelSelectorName,
+    ModelSelectorTrigger,
+} from "@/components/ai-elements/model-selector"
 import { useCreateLlm, useUpdateLlm } from "../hooks/use-llms"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { honoClient } from "@/lib/api/hono-client"
 import { InferResponseType } from "hono/client"
 import { createLlmSchema } from "../server/routers"
+import {
+    getAIModelById,
+    getAIModelChefs,
+    getAIModelsByChef,
+    getAIProviderBySlug,
+} from "@/config/constants"
+import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
 
 type LlmFormValues = z.input<typeof createLlmSchema>
 type LlmsSuccessResponse = InferResponseType<typeof honoClient.api.llms.$get, 200>
@@ -53,24 +65,29 @@ export const LlmsDialog = ({
     const updateMutation = useUpdateLlm()
     const isEditing = !!editItem
 
+    const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
+
     const form = useForm<LlmFormValues>({
         resolver: zodResolver(createLlmSchema),
         defaultValues: {
             name: "",
             description: "",
-            provider: "",
+            provider: "" as LlmFormValues["provider"],
             model: "",
             baseUrl: "",
             apiKey: "",
         },
     })
 
+    const selectedModel = form.watch("model")
+    const selectedModelData = getAIModelById(selectedModel)
+
     useEffect(() => {
         if (editItem) {
             form.reset({
                 name: editItem.name,
                 description: editItem.description || "",
-                provider: editItem.provider,
+                provider: editItem.provider as LlmFormValues["provider"],
                 model: editItem.model,
                 baseUrl: editItem.baseUrl,
                 apiKey: editItem.apiKey,
@@ -79,13 +96,26 @@ export const LlmsDialog = ({
             form.reset({
                 name: "",
                 description: "",
-                provider: "",
+                provider: "" as LlmFormValues["provider"],
                 model: "",
                 baseUrl: "",
                 apiKey: "",
             })
         }
     }, [editItem, form])
+
+    const handleModelSelect = (modelId: string) => {
+        const model = getAIModelById(modelId)
+        if (!model) return
+
+        const provider = getAIProviderBySlug(model.chefSlug)
+        if (!provider) return
+
+        form.setValue("model", model.id)
+        form.setValue("provider", model.chefSlug as LlmFormValues["provider"])
+        form.setValue("baseUrl", provider.defaultBaseUrl)
+        setModelSelectorOpen(false)
+    }
 
     const onSubmit = async (values: LlmFormValues) => {
         const payload = {
@@ -125,6 +155,7 @@ export const LlmsDialog = ({
     }
 
     const isPending = createMutation.isPending || updateMutation.isPending
+    const chefs = getAIModelChefs()
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -166,44 +197,62 @@ export const LlmsDialog = ({
                                 </FormItem>
                             )}
                         />
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="provider"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Provider *</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select provider" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="openai">OpenAI</SelectItem>
-                                                <SelectItem value="google">Google</SelectItem>
-                                                <SelectItem value="anthropic">Anthropic</SelectItem>
-                                                <SelectItem value="ollama">Ollama</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="model"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Model *</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., gpt-4-turbo" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+
+                        {/* Model Selector - auto-populates provider */}
+                        <FormItem>
+                            <FormLabel>Model *</FormLabel>
+                            <ModelSelector open={modelSelectorOpen} onOpenChange={setModelSelectorOpen}>
+                                <ModelSelectorTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full justify-between"
+                                    >
+                                        {selectedModelData ? (
+                                            <span className="flex items-center gap-2">
+                                                <ModelSelectorLogo provider={selectedModelData.chefSlug} />
+                                                <ModelSelectorName>{selectedModelData.name}</ModelSelectorName>
+                                                <span className="text-muted-foreground text-xs">
+                                                    ({selectedModelData.chef})
+                                                </span>
+                                            </span>
+                                        ) : (
+                                            <span className="text-muted-foreground">Select a model...</span>
+                                        )}
+                                        <ChevronsUpDownIcon className="size-4 opacity-50" />
+                                    </Button>
+                                </ModelSelectorTrigger>
+                                <ModelSelectorContent>
+                                    <ModelSelectorInput placeholder="Search models..." />
+                                    <ModelSelectorList>
+                                        <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                                        {chefs.map((chef) => (
+                                            <ModelSelectorGroup heading={chef} key={chef}>
+                                                {getAIModelsByChef(chef).map((model) => (
+                                                    <ModelSelectorItem
+                                                        key={model.id}
+                                                        value={model.id}
+                                                        onSelect={() => handleModelSelect(model.id)}
+                                                    >
+                                                        <ModelSelectorLogo provider={model.chefSlug} />
+                                                        <ModelSelectorName>{model.name}</ModelSelectorName>
+                                                        {selectedModel === model.id ? (
+                                                            <CheckIcon className="ml-auto size-4" />
+                                                        ) : (
+                                                            <div className="ml-auto size-4" />
+                                                        )}
+                                                    </ModelSelectorItem>
+                                                ))}
+                                            </ModelSelectorGroup>
+                                        ))}
+                                    </ModelSelectorList>
+                                </ModelSelectorContent>
+                            </ModelSelector>
+                            {form.formState.errors.model && (
+                                <p className="text-destructive text-sm">{form.formState.errors.model.message}</p>
+                            )}
+                        </FormItem>
+
                         <FormField
                             control={form.control}
                             name="baseUrl"

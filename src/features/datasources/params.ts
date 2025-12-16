@@ -33,6 +33,15 @@ export const datasourcesParams = {
     }).withDefault('desc' as const).withOptions({ clearOnDefault: true }),
 }
 
-export type DatasourceParams = {
-    id: string
-}
+export const idParamSchema = z.object({
+    id: z.coerce.number().int().positive(),
+})
+/** Raw URL params - id is string from the URL */
+export type DatasourceParams = { id: string }
+/** Parsed params after Zod coercion */
+export type ParsedDatasourceParams = z.infer<typeof idParamSchema>
+
+export const groupIdParamSchema = z.object({
+    groupId: z.coerce.number().int().positive(),
+})
+export type GroupIdParams = z.infer<typeof groupIdParamSchema>

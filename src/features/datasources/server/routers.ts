@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
-import { datasourcesQuerySchema } from '../params'
+import { datasourcesQuerySchema, groupIdParamSchema, idParamSchema } from '../params'
 import { protectedRoute } from '@/backend/middleware/auth'
 import { upsertVector, deleteVector } from '@/lib/vectorize'
 import {
@@ -23,13 +23,6 @@ const updateDatasourceSchema = z.object({
     content: z.string().min(1, 'Content is required').optional(),
 })
 
-const idParamSchema = z.object({
-    id: z.coerce.number().int().positive(),
-})
-
-const groupIdParamSchema = z.object({
-    groupId: z.coerce.number().int().positive(),
-})
 
 export const datasourcesRouter = new Hono()
     // Apply protected middleware to all routes

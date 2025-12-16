@@ -45,14 +45,14 @@ export const DatasourceGroupList = () => {
 
     return (
         <>
-            <EntityList<DatasourceGroupItem>
+            <EntityList
                 items={items}
                 getKey={(item) => item.id}
                 emptyView={<DatasourceGroupEmpty />}
                 isPending={isFetching}
                 renderItem={(item) => (
                     <EntityItem
-                        href={`/datasource-groups/${item.id}`}
+                        href={`/datasources/${item.id}`}
                         title={item.name}
                         subtitle={
                             <span className="flex items-center gap-1.5">

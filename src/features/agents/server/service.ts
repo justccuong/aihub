@@ -26,9 +26,45 @@ function getAgentCacheKey(id: number): string {
 /**
  * Invalidate agent cache
  */
-async function invalidateAgentCache(id: number): Promise<void> {
+export async function invalidateAgentCache(id: number): Promise<void> {
     const cacheKey = getAgentCacheKey(id)
     await deleteKV(cacheKey)
+}
+
+/**
+ * Invalidate agent caches for all agents using a specific LLM
+ */
+export async function invalidateAgentCachesByLlmId(llmId: number): Promise<void> {
+    const db = await getDb()
+
+    // Find all agents using this LLM
+    const agentsUsingLlm = await db
+        .select({ id: agents.id })
+        .from(agents)
+        .where(eq(agents.llmId, llmId))
+
+    // Invalidate cache for each agent
+    await Promise.all(
+        agentsUsingLlm.map(agent => invalidateAgentCache(agent.id))
+    )
+}
+
+/**
+ * Invalidate agent caches for all agents using a specific datasource group
+ */
+export async function invalidateAgentCachesByDatasourceGroupId(datasourceGroupId: number): Promise<void> {
+    const db = await getDb()
+
+    // Find all agents using this datasource group
+    const agentsUsingGroup = await db
+        .select({ agentId: agentDatasourceGroups.agentId })
+        .from(agentDatasourceGroups)
+        .where(eq(agentDatasourceGroups.datasourceGroupId, datasourceGroupId))
+
+    // Invalidate cache for each agent
+    await Promise.all(
+        agentsUsingGroup.map(ag => invalidateAgentCache(ag.agentId))
+    )
 }
 
 /**
@@ -134,6 +170,7 @@ export async function listAgents(params: ListAgentsParams) {
 
 /**
  * Fetch agent from database by ID (internal helper)
+ * Returns null if agent not found OR if agent has no LLM configured
  */
 async function fetchAgentFromDb(id: number) {
     const db = await getDb()
@@ -147,10 +184,9 @@ async function fetchAgentFromDb(id: number) {
             topK: agents.topK,
             temperature: agents.temperature,
             maxTokens: agents.maxTokens,
-            llmId: agents.llmId,
+            llm: llms,
             createdAt: agents.createdAt,
             updatedAt: agents.updatedAt,
-            llmName: llms.name,
         })
         .from(agents)
         .leftJoin(llms, eq(agents.llmId, llms.id))
@@ -158,6 +194,13 @@ async function fetchAgentFromDb(id: number) {
         .limit(1)
 
     if (!result[0]) return null
+
+    const { llm, ...agentData } = result[0]
+
+    // Validate LLM exists - return null if no LLM configured
+    if (!llm) {
+        return null
+    }
 
     // Get datasource groups
     const agentGroups = await db
@@ -170,10 +213,12 @@ async function fetchAgentFromDb(id: number) {
         .where(eq(agentDatasourceGroups.agentId, id))
 
     return {
-        ...result[0],
+        ...agentData,
+        llm: llm,
         datasourceGroups: agentGroups.map(g => ({ id: g.groupId, name: g.groupName })),
     }
 }
+export type AgentDetail = Awaited<ReturnType<typeof fetchAgentFromDb>>
 
 /**
  * Get agent by ID with LLM and datasource groups (cached, 15 min TTL)

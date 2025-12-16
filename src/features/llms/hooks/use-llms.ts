@@ -7,6 +7,7 @@ import {
     deleteLlmMutation,
     llmsKeys,
 } from '../query-options'
+import { agentsKeys } from '@/features/agents/query-options'
 import { llmsQuerySchema } from '../params'
 import { z } from 'zod'
 import { toast } from 'sonner'
@@ -66,6 +67,8 @@ export const useUpdateLlm = () => {
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: llmsKeys.detail(variables.id) })
             queryClient.invalidateQueries({ queryKey: llmsKeys.lists() })
+            // Invalidate agents cache since they reference LLMs
+            queryClient.invalidateQueries({ queryKey: agentsKeys.all })
             toast.success('LLM updated successfully')
         },
         onError: (error: Error) => {
@@ -85,6 +88,8 @@ export const useDeleteLlm = () => {
         onSuccess: (data, id) => {
             queryClient.removeQueries({ queryKey: llmsKeys.detail(id) })
             queryClient.invalidateQueries({ queryKey: llmsKeys.lists() })
+            // Invalidate agents cache since they reference LLMs
+            queryClient.invalidateQueries({ queryKey: agentsKeys.all })
             toast.success('LLM deleted successfully')
         },
         onError: (error: Error) => {

@@ -29,7 +29,7 @@ const menuItems = [
         title: "Agent Management",
         items: [
             { title: "LLMs", icon: BotIcon, url: "/llms" },
-            { title: "Datasource", icon: BookIcon, url: "/datasource" },
+            { title: "Datasource", icon: BookIcon, url: "/datasources" },
             { title: "Agents", icon: BotMessageSquareIcon, url: "/agents" },
         ],
     },

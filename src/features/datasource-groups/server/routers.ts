@@ -11,6 +11,7 @@ import {
     deleteDatasourceGroup,
     datasourceGroupExists,
 } from './service'
+import { invalidateAgentCachesByDatasourceGroupId } from '@/features/agents/server/service'
 
 // Validation schemas
 export const createDatasourceGroupSchema = z.object({
@@ -81,6 +82,10 @@ export const datasourceGroupsRouter = new Hono()
             }
 
             const updatedGroup = await updateDatasourceGroup(id, data)
+
+            // Invalidate KV cache for agents using this datasource group
+            await invalidateAgentCachesByDatasourceGroupId(id)
+
             return c.json({ data: updatedGroup })
         } catch (error) {
             console.error('Error updating datasource group:', error)
@@ -97,6 +102,9 @@ export const datasourceGroupsRouter = new Hono()
             if (!await datasourceGroupExists(id)) {
                 return c.json({ error: 'Datasource group not found' }, 404)
             }
+
+            // Invalidate KV cache for agents using this datasource group before delete
+            await invalidateAgentCachesByDatasourceGroupId(id)
 
             await deleteDatasourceGroup(id)
             return c.json({ message: 'Datasource group deleted successfully' })

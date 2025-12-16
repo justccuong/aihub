@@ -30,7 +30,7 @@ type DatasourceItem = DatasourcesSuccessResponse["data"][number]
 
 export const DatasourcesList = () => {
     const params = useParams<DatasourceParams>()
-    const groupId = parseInt(params.id, 10)
+    const groupId = parseInt(params.id ?? '', 10)
 
     const [queryParams, setQueryParams] = useDatasourcesParams()
     const { data, isFetching } = useDatasourcesList(groupId, queryParams)
@@ -91,7 +91,7 @@ export const DatasourcesList = () => {
 
     return (
         <>
-            <EntityTable<DatasourceItem, unknown>
+            <EntityTable
                 columns={columns}
                 data={items}
                 emptyView={<DatasourcesEmpty />}
@@ -116,7 +116,7 @@ export const DatasourcesList = () => {
 
 export const DatasourcesHeader = ({ disabled }: { disabled?: boolean }) => {
     const params = useParams<DatasourceParams>()
-    const groupId = parseInt(params.id, 10)
+    const groupId = parseInt(params.id ?? '', 10)
     const [queryParams] = useDatasourcesParams()
     const { data } = useDatasourcesList(groupId, queryParams)
     const [dialogOpen, setDialogOpen] = useState(false)

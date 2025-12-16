@@ -11,12 +11,14 @@ import {
     deleteLlm,
     llmExists,
 } from './service'
+import { invalidateAgentCachesByLlmId } from '@/features/agents/server/service'
+import { AI_PROVIDER_SLUGS } from '@/config/constants'
 
 // Validation schemas
 export const createLlmSchema = z.object({
     name: z.string().min(1, 'Name is required').max(255),
     description: z.string().default('').optional(),
-    provider: z.string().min(1, 'Provider is required').max(100),
+    provider: z.enum(AI_PROVIDER_SLUGS, { message: 'Invalid provider' }),
     model: z.string().min(1, 'Model is required').max(255),
     baseUrl: z.url('Must be a valid URL'),
     apiKey: z.string().min(1, 'API key is required'),
@@ -85,6 +87,10 @@ export const llmsRouter = new Hono()
             }
 
             const updatedLlm = await updateLlm(id, data)
+
+            // Invalidate KV cache for agents using this LLM
+            await invalidateAgentCachesByLlmId(id)
+
             return c.json({ data: updatedLlm })
         } catch (error) {
             console.error('Error updating LLM:', error)
@@ -101,6 +107,9 @@ export const llmsRouter = new Hono()
             if (!await llmExists(id)) {
                 return c.json({ error: 'LLM not found' }, 404)
             }
+
+            // Invalidate KV cache for agents using this LLM before delete
+            await invalidateAgentCachesByLlmId(id)
 
             await deleteLlm(id)
             return c.json({ message: 'LLM deleted successfully' })

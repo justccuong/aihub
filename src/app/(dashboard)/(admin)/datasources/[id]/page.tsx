@@ -16,7 +16,7 @@ export default async function Page({ params, searchParams }: Props) {
     await requireAuth()
 
     const { id } = await params
-    const groupId = parseInt(id, 10)
+    const groupId = parseInt(id ?? '', 10)
 
     if (isNaN(groupId)) {
         notFound()

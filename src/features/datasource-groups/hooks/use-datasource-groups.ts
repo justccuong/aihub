@@ -7,6 +7,7 @@ import {
     deleteDatasourceGroupMutation,
     datasourceGroupsKeys,
 } from '../query-options'
+import { agentsKeys } from '@/features/agents/query-options'
 import { datasourceGroupsQuerySchema } from '../params'
 import { z } from 'zod'
 import { toast } from 'sonner'
@@ -66,6 +67,8 @@ export const useUpdateDatasourceGroup = () => {
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: datasourceGroupsKeys.detail(variables.id) })
             queryClient.invalidateQueries({ queryKey: datasourceGroupsKeys.lists() })
+            // Invalidate agents cache since they reference datasource groups
+            queryClient.invalidateQueries({ queryKey: agentsKeys.all })
             toast.success('Datasource group updated successfully')
         },
         onError: (error: Error) => {
@@ -85,6 +88,8 @@ export const useDeleteDatasourceGroup = () => {
         onSuccess: (data, id) => {
             queryClient.removeQueries({ queryKey: datasourceGroupsKeys.detail(id) })
             queryClient.invalidateQueries({ queryKey: datasourceGroupsKeys.lists() })
+            // Invalidate agents cache since they reference datasource groups
+            queryClient.invalidateQueries({ queryKey: agentsKeys.all })
             toast.success('Datasource group deleted successfully')
         },
         onError: (error: Error) => {
