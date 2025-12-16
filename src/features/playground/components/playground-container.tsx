@@ -77,7 +77,6 @@ export const PlaygroundContainer = () => {
     // No agent selected - show selector
     if (!agentId) {
         return <NoAgentSelected />
-        // return "No agent"
     }
 
     return (
