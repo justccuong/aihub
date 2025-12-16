@@ -151,23 +151,6 @@ export const AgentConfigPanel = ({ agentId, onConfigChange }: AgentConfigPanelPr
 
     return (
         <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="p-4 border-b">
-                <div className="flex items-center gap-3">
-                    <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <BotIcon className="size-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <h2 className="font-semibold truncate">{agent.name}</h2>
-                        {agent.llm && (
-                            <p className="text-xs text-muted-foreground truncate">
-                                {agent.llm.name} ({agent.llm.provider}/{agent.llm.model})
-                            </p>
-                        )}
-                    </div>
-                </div>
-            </div>
-
             {/* Form */}
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
