@@ -1,6 +1,4 @@
 import { createOpenAI } from "@ai-sdk/openai"
-import { createAnthropic } from "@ai-sdk/anthropic"
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createOllama } from "ollama-ai-provider-v2"
 import { convertToModelMessages, generateText, stepCountIs, streamText, tool, UIMessage } from "ai"
 import z from "zod"
@@ -20,16 +18,6 @@ export const createAIProvider = ({ llm }: AgentDetailResolved) => {
     switch (llm.provider) {
         case "openai":
             return createOpenAI({
-                baseURL: llm.baseUrl,
-                apiKey: llm.apiKey,
-            });
-        case "anthropic":
-            return createAnthropic({
-                baseURL: llm.baseUrl,
-                apiKey: llm.apiKey,
-            });
-        case "google":
-            return createGoogleGenerativeAI({
                 baseURL: llm.baseUrl,
                 apiKey: llm.apiKey,
             });
