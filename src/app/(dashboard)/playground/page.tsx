@@ -37,7 +37,7 @@ export default async function PlaygroundPage() {
             <div className="h-[100dvh] flex flex-col">
                 <ErrorBoundary fallback={<PlaygroundError />}>
                     <Suspense fallback={<PlaygroundLoading />}>
-                        {/* <PlaygroundContainer /> */}
+                        <PlaygroundContainer />
                     </Suspense>
                 </ErrorBoundary>
             </div>
