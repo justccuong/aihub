@@ -74,16 +74,15 @@ export const PlaygroundContainer = () => {
     return (
         <div className="flex flex-col h-full">
             {/* Top bar with agent selector */}
-            <div className="flex items-center justify-between gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            {/* <div className="flex items-center justify-between gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="flex-1 max-w-sm">
                     <AgentSelector />
                 </div>
                 <IntegrationDialog agentId={agentId} />
-            </div>
+            </div> */}
 
             {/* Main content with resizable panels */}
-            <ResizablePanelGroup direction="horizontal" className="flex-1">
-                {/* Left panel - Agent Config */}
+            {/* <ResizablePanelGroup direction="horizontal" className="flex-1">
                 <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
                     <div className="h-full border-r bg-muted/30">
                         <AgentConfigPanel
@@ -95,7 +94,6 @@ export const PlaygroundContainer = () => {
 
                 <ResizableHandle withHandle />
 
-                {/* Right panel - Chat */}
                 <ResizablePanel defaultSize={70} minSize={40}>
                     <div className="h-full bg-background">
                         <PlaygroundChat
@@ -104,7 +102,8 @@ export const PlaygroundContainer = () => {
                         />
                     </div>
                 </ResizablePanel>
-            </ResizablePanelGroup>
+            </ResizablePanelGroup> */}
+            Test
         </div>
     )
 }
