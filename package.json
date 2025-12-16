@@ -18,8 +18,6 @@
 		"db:migrate": "npm run db:generate && npm run db:push"
 	},
 	"dependencies": {
-		"@ai-sdk/anthropic": "^2.0.56",
-		"@ai-sdk/google": "^2.0.46",
 		"@ai-sdk/openai": "^2.0.86",
 		"@ai-sdk/react": "^2.0.115",
 		"@base-ui/react": "^1.0.0",
@@ -55,7 +53,6 @@
 		"@radix-ui/react-use-controllable-state": "^1.2.2",
 		"@tanstack/react-query": "^5.90.12",
 		"@tanstack/react-table": "^8.21.3",
-		"@xyflow/react": "^12.10.0",
 		"ai": "^5.0.113",
 		"better-auth": "^1.4.7",
 		"class-variance-authority": "^0.7.1",

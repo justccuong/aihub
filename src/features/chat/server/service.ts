@@ -1,5 +1,4 @@
 import { createOpenAI } from "@ai-sdk/openai"
-import { createOllama } from "ollama-ai-provider-v2"
 import { convertToModelMessages, generateText, stepCountIs, streamText, tool, UIMessage } from "ai"
 import z from "zod"
 import { searchVectors } from "@/lib/vectorize"
@@ -20,13 +19,6 @@ export const createAIProvider = ({ llm }: AgentDetailResolved) => {
             return createOpenAI({
                 baseURL: llm.baseUrl,
                 apiKey: llm.apiKey,
-            });
-        case "ollama":
-            return createOllama({
-                baseURL: llm.baseUrl,
-                headers: {
-                    "Authorization": `Bearer ${llm.apiKey}`,
-                }
             });
         default:
             logger.warn('Unknown provider, defaulting to OpenAI', { provider: llm.provider })
