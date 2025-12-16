@@ -54,11 +54,12 @@ function CodeTabsContent({
   useEffect(() => {
     async function loadHighlightedCode() {
       try {
-        const { codeToHtml } = await import('shiki');
+        const { getHighlighter } = await import('@/lib/shiki');
+        const highlighter = await getHighlighter();
         const newHighlightedCodes: Record<string, string> = {};
 
         for (const [command, val] of Object.entries(codes)) {
-          const highlighted = await codeToHtml(val, {
+          const highlighted = highlighter.codeToHtml(val, {
             lang,
             themes: {
               light: themes.light,

@@ -1,8 +1,7 @@
 "use client"
 
-import { Suspense, useState, useCallback } from "react"
-import { ErrorBoundary } from "react-error-boundary"
-import { BotIcon, MessageCircleIcon } from "lucide-react"
+import { useState, useCallback } from "react"
+import { MessageCircleIcon } from "lucide-react"
 import {
     ResizablePanelGroup,
     ResizablePanel,
@@ -14,19 +13,6 @@ import { AgentConfigPanel } from "./agent-config-panel"
 import { PlaygroundChat } from "./playground-chat"
 import { IntegrationDialog } from "./integration-dialog"
 import { Spinner } from "@/components/ui/spinner"
-
-const AgentConfigLoading = () => (
-    <div className="flex items-center justify-center h-full">
-        <Spinner className="size-6" />
-    </div>
-)
-
-const AgentConfigError = () => (
-    <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground">
-        <BotIcon className="size-8" />
-        <p className="text-sm">Failed to load agent</p>
-    </div>
-)
 
 const NoAgentSelected = () => (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
@@ -45,7 +31,6 @@ const NoAgentSelected = () => (
         </div>
     </div>
 )
-
 export const PlaygroundContainer = () => {
     const [agentId] = usePlaygroundParams()
     const [customConfig, setCustomConfig] = useState<{
@@ -81,14 +66,10 @@ export const PlaygroundContainer = () => {
                 {/* Left panel - Agent Config */}
                 <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
                     <div className="h-full border-r bg-muted/30">
-                        <ErrorBoundary fallback={<AgentConfigError />}>
-                            <Suspense fallback={<AgentConfigLoading />}>
-                                <AgentConfigPanel
-                                    agentId={agentId}
-                                    onConfigChange={handleConfigChange}
-                                />
-                            </Suspense>
-                        </ErrorBoundary>
+                        <AgentConfigPanel
+                            agentId={agentId}
+                            onConfigChange={handleConfigChange}
+                        />
                     </div>
                 </ResizablePanel>
 

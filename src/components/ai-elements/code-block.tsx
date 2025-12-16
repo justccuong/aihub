@@ -12,7 +12,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { type BundledLanguage, codeToHtml, type ShikiTransformer } from "shiki";
+import { type BundledLanguage } from "shiki";
+import { getHighlighter, type ShikiTransformer } from "@/lib/shiki";
 
 type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
   code: string;
@@ -58,13 +59,15 @@ export async function highlightCode(
     ? [lineNumberTransformer]
     : [];
 
+  const highlighter = await getHighlighter();
+
   return await Promise.all([
-    codeToHtml(code, {
+    highlighter.codeToHtml(code, {
       lang: language,
       theme: "one-light",
       transformers,
     }),
-    codeToHtml(code, {
+    highlighter.codeToHtml(code, {
       lang: language,
       theme: "one-dark-pro",
       transformers,
