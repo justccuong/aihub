@@ -2,17 +2,17 @@
 
 import { useState, useCallback } from "react"
 import { MessageCircleIcon, BotIcon } from "lucide-react"
-// import {
-//     ResizablePanelGroup,
-//     ResizablePanel,
-//     ResizableHandle,
-// } from "@/components/ui/resizable"
+import {
+    ResizablePanelGroup,
+    ResizablePanel,
+    ResizableHandle,
+} from "@/components/ui/resizable"
 import { usePlaygroundParams } from "../hooks/use-playground-params"
 import { Spinner } from "@/components/ui/spinner"
 import { AgentSelector } from "./agent-selector"
 // import { IntegrationDialog } from "./integration-dialog"
-// import { PlaygroundChat } from "./playground-chat"
-// import { AgentConfigPanel } from "./agent-config-panel"
+import { PlaygroundChat } from "./playground-chat"
+import { AgentConfigPanel } from "./agent-config-panel"
 
 const NoAgentSelected = () => (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
@@ -77,7 +77,7 @@ export const PlaygroundContainer = () => {
             </div> */}
 
             {/* Main content with resizable panels */}
-            {/* <ResizablePanelGroup direction="horizontal" className="flex-1">
+            <ResizablePanelGroup direction="horizontal" className="flex-1">
                 <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
                     <div className="h-full border-r bg-muted/30">
                         <AgentConfigPanel
@@ -97,7 +97,7 @@ export const PlaygroundContainer = () => {
                         />
                     </div>
                 </ResizablePanel>
-            </ResizablePanelGroup> */}
+            </ResizablePanelGroup>
         </div>
     )
 }
