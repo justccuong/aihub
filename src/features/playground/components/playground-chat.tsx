@@ -22,8 +22,9 @@ import {
 } from "@/components/ai-elements/prompt-input"
 import { Loader } from "@/components/ai-elements/loader"
 import { SemanticSearchToolUIComponent } from "./semantic-search-tool-ui"
+import { WebSearchToolUIComponent } from "./web-search-tool-ui"
 import { usePlaygroundChat } from "../hooks/use-playground-chat"
-import type { SemanticSearchToolUI, PlaygroundUIMessage } from "@/features/chat/server/service"
+import type { SemanticSearchToolUI, WebSearchToolUI, PlaygroundUIMessage } from "@/features/chat/server/service"
 import {
     Tooltip,
     TooltipContent,
@@ -150,6 +151,21 @@ export const PlaygroundChat = ({ agentId, customConfig }: PlaygroundChatProps) =
                                             if (part.type === "tool-semanticSearchTool") {
                                                 return (
                                                     <SemanticSearchToolUIComponent
+                                                        key={index}
+                                                        toolUI={{
+                                                            type: part.type,
+                                                            state: part.state,
+                                                            input: part.input ?? {},
+                                                            output: part.output,
+                                                            errorText: part.errorText,
+                                                        }}
+                                                    />
+                                                )
+                                            }
+                                            // Handle tool-webSearchTool UI part
+                                            if (part.type === "tool-webSearchTool") {
+                                                return (
+                                                    <WebSearchToolUIComponent
                                                         key={index}
                                                         toolUI={{
                                                             type: part.type,

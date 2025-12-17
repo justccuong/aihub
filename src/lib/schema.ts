@@ -127,6 +127,16 @@ export const agents = sqliteTable("agents", {
         .$defaultFn(() => new Date()),
 })
 
+export const ollamaKeys = sqliteTable("ollama_keys", {
+    id: int("id").primaryKey({ autoIncrement: true }),
+    name: text("name").default(""),
+    key: text("key").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .$defaultFn(() => new Date()),
+})
+
 // Junction table for many-to-many relationship between agents and datasource groups
 export const agentDatasourceGroups = sqliteTable("agent_datasource_groups", {
     id: int("id").primaryKey({ autoIncrement: true }),

@@ -1,10 +1,22 @@
 import { createOpenAI } from "@ai-sdk/openai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
-import { convertToModelMessages, generateText, stepCountIs, streamText, tool, UIMessage, InferUITools } from "ai"
-import z from "zod"
-import { searchVectors } from "@/lib/vectorize"
+import { convertToModelMessages, generateText, stepCountIs, streamText, UIMessage } from "ai"
 import { AgentDetail } from "@/features/agents/server/service"
 import { chatLogger as logger } from "@/lib/logger"
+import { createAgentTools } from "./tools"
+
+// Re-export tool types for external use
+export {
+    semanticSearchInputSchema,
+    type SemanticSearchToolInput,
+    type SemanticSearchToolUI,
+    webSearchInputSchema,
+    type WebSearchToolInput,
+    type WebSearchToolUI,
+    type PlaygroundToolSet,
+    type PlaygroundUITools,
+    type PlaygroundUIMessage,
+} from "./tools"
 
 type AgentDetailResolved = NonNullable<AgentDetail>
 
@@ -32,102 +44,6 @@ export const createAIProvider = ({ llm }: AgentDetailResolved) => {
                 baseURL: llm.baseUrl,
                 apiKey: llm.apiKey,
             });
-    }
-}
-
-// Single source of truth for semantic search tool input schema
-export const semanticSearchInputSchema = z.object({
-    query: z
-        .string()
-        .describe(
-            "Thông tin cần tìm kiếm"
-        ),
-    reasoning: z
-        .string()
-        .describe(
-            "Giải thích tại sao bạn chọn tìm kiếm thông tin"
-        ),
-})
-
-// Inferred type for semantic search tool input - use this as single source of truth
-export type SemanticSearchToolInput = z.infer<typeof semanticSearchInputSchema>
-
-// Tool UI part type for semantic search tool - matches AI SDK's tool-{toolName} pattern
-// The part.type will be "tool-semanticSearchTool"
-export type SemanticSearchToolUI = {
-    type: "tool-semanticSearchTool"
-    state: "input-streaming" | "input-available" | "output-available" | "output-error"
-    input: Partial<SemanticSearchToolInput>
-    output?: unknown
-    errorText?: string
-}
-
-// Define the tools object shape for type inference
-// We use a function to create the actual tools, but this type represents the shape
-const semanticSearchToolDef = tool({
-    description: "Semantic search tool",
-    inputSchema: semanticSearchInputSchema,
-    execute: async () => ({ success: true }),
-})
-
-// Type for the playground tools - use this with InferUITools
-export type PlaygroundToolSet = {
-    semanticSearchTool: typeof semanticSearchToolDef
-}
-
-// Inferred UI tools type - use this with UIMessage<unknown, unknown, PlaygroundUITools>
-export type PlaygroundUITools = InferUITools<PlaygroundToolSet>
-
-// Custom UIMessage type for playground with proper tool typing
-export type PlaygroundUIMessage = UIMessage<unknown, never, PlaygroundUITools>
-
-export const createSemanticSearchTool = (
-    agent: AgentDetailResolved
-) =>
-    tool({
-        description: "Tìm thông tin theo ngữ cảnh, luôn sử dụng tool này khi người dùng hỏi về một vấn đề, trường hợp không có kết quả, hãy trả lời không biết",
-        inputSchema: semanticSearchInputSchema,
-        execute: async ({
-            query,
-            reasoning,
-        }: {
-            query: string
-            reasoning: string
-        }) => {
-            try {
-                logger.info('Semantic search tool executing', { query, reasoning, agentId: agent.id })
-                logger.debug('Semantic search datasource groups', { groups: agent.datasourceGroups })
-
-                // Use vectorize search
-                const vectorResults = await searchVectors(query, agent.datasourceGroups.map(g => g.id), agent.topK ?? 40)
-
-                logger.info('Semantic search completed', { query, resultCount: vectorResults.length })
-                if (vectorResults.length === 0) {
-                    return {
-                        success: true,
-                        data: [],
-                        count: 0,
-                        reasoning,
-                        message: "Không tìm thấy thông tin",
-                    }
-                }
-
-                return vectorResults
-            } catch (error) {
-                logger.error('Semantic search tool error', { query, error: String(error) })
-                return {
-                    success: false,
-                    error: `Semantic search failed: ${error}`,
-                    reasoning,
-                }
-            }
-        },
-    })
-
-function createAgentTools(agent: AgentDetailResolved) {
-    logger.debug('Creating agent tools', { agentId: agent.id })
-    return {
-        semanticSearchTool: createSemanticSearchTool(agent),
     }
 }
 
@@ -204,8 +120,13 @@ const createMessages = ({
     agent: AgentDetailResolved
     messages: UIMessage[]
 }) => {
-    const systemPrompt = `${agent.systemPrompt}\n\n
-        Luôn sử dụng tool semanticSearch, nếu không có kết quả thì trả lời không biết, không được bịa kết quả.
+    const systemPrompt = `${agent.systemPrompt}
+
+Bạn có 2 công cụ:
+1. semanticSearchTool: Tìm kiếm thông tin trong cơ sở dữ liệu nội bộ. Luôn sử dụng tool này trước khi trả lời câu hỏi.
+2. webSearchTool: Tìm kiếm thông tin trên internet khi cần thông tin mới nhất hoặc thông tin không có trong cơ sở dữ liệu nội bộ.
+
+Nếu không tìm thấy kết quả từ cả 2 công cụ, hãy trả lời không biết, không được bịa kết quả.
     `
     return [
         { role: "system" as const, content: systemPrompt },
