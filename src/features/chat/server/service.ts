@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
-import { convertToModelMessages, generateText, stepCountIs, streamText, tool, UIMessage } from "ai"
+import { convertToModelMessages, generateText, stepCountIs, streamText, tool, UIMessage, InferUITools } from "ai"
 import z from "zod"
 import { searchVectors } from "@/lib/vectorize"
 import { AgentDetail } from "@/features/agents/server/service"
@@ -35,23 +35,58 @@ export const createAIProvider = ({ llm }: AgentDetailResolved) => {
     }
 }
 
+// Single source of truth for semantic search tool input schema
+export const semanticSearchInputSchema = z.object({
+    query: z
+        .string()
+        .describe(
+            "Thông tin cần tìm kiếm"
+        ),
+    reasoning: z
+        .string()
+        .describe(
+            "Giải thích tại sao bạn chọn tìm kiếm thông tin"
+        ),
+})
+
+// Inferred type for semantic search tool input - use this as single source of truth
+export type SemanticSearchToolInput = z.infer<typeof semanticSearchInputSchema>
+
+// Tool UI part type for semantic search tool - matches AI SDK's tool-{toolName} pattern
+// The part.type will be "tool-semanticSearchTool"
+export type SemanticSearchToolUI = {
+    type: "tool-semanticSearchTool"
+    state: "input-streaming" | "input-available" | "output-available" | "output-error"
+    input: Partial<SemanticSearchToolInput>
+    output?: unknown
+    errorText?: string
+}
+
+// Define the tools object shape for type inference
+// We use a function to create the actual tools, but this type represents the shape
+const semanticSearchToolDef = tool({
+    description: "Semantic search tool",
+    inputSchema: semanticSearchInputSchema,
+    execute: async () => ({ success: true }),
+})
+
+// Type for the playground tools - use this with InferUITools
+export type PlaygroundToolSet = {
+    semanticSearchTool: typeof semanticSearchToolDef
+}
+
+// Inferred UI tools type - use this with UIMessage<unknown, unknown, PlaygroundUITools>
+export type PlaygroundUITools = InferUITools<PlaygroundToolSet>
+
+// Custom UIMessage type for playground with proper tool typing
+export type PlaygroundUIMessage = UIMessage<unknown, never, PlaygroundUITools>
+
 export const createSemanticSearchTool = (
     agent: AgentDetailResolved
 ) =>
     tool({
         description: "Tìm thông tin theo ngữ cảnh, luôn sử dụng tool này khi người dùng hỏi về một vấn đề, trường hợp không có kết quả, hãy trả lời không biết",
-        inputSchema: z.object({
-            query: z
-                .string()
-                .describe(
-                    "Thông tin cần tìm kiếm"
-                ),
-            reasoning: z
-                .string()
-                .describe(
-                    "Giải thích tại sao bạn chọn tìm kiếm thông tin"
-                ),
-        }),
+        inputSchema: semanticSearchInputSchema,
         execute: async ({
             query,
             reasoning,

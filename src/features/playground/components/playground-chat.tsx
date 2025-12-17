@@ -21,8 +21,9 @@ import {
     PromptInputButton,
 } from "@/components/ai-elements/prompt-input"
 import { Loader } from "@/components/ai-elements/loader"
+import { SemanticSearchToolUIComponent } from "./semantic-search-tool-ui"
 import { usePlaygroundChat } from "../hooks/use-playground-chat"
-import type { UIMessage } from "ai"
+import type { SemanticSearchToolUI, PlaygroundUIMessage } from "@/features/chat/server/service"
 import {
     Tooltip,
     TooltipContent,
@@ -92,7 +93,7 @@ export const PlaygroundChat = ({ agentId, customConfig }: PlaygroundChatProps) =
     }
 
     // Helper to get text content from message parts
-    const getMessageText = (message: UIMessage): string => {
+    const getMessageText = (message: PlaygroundUIMessage): string => {
         if (!message.parts) return ""
         return message.parts
             .filter((part): part is { type: "text"; text: string } => part.type === "text")
@@ -133,7 +134,7 @@ export const PlaygroundChat = ({ agentId, customConfig }: PlaygroundChatProps) =
                             description="Send a message to begin chatting with the agent"
                         />
                     ) : (
-                        messages.map((message: UIMessage) => (
+                        messages.map((message) => (
                             <Message key={message.id} from={message.role}>
                                 <MessageContent>
                                     {message.parts ? (
@@ -145,15 +146,19 @@ export const PlaygroundChat = ({ agentId, customConfig }: PlaygroundChatProps) =
                                                     </MessageResponse>
                                                 )
                                             }
-                                            if (part.type === "tool-invocation") {
-                                                const toolPart = part as unknown as { type: "tool-invocation"; toolName?: string; toolCallId?: string }
+                                            // Handle tool-semanticSearchTool UI part (AI SDK pattern: tool-{toolName})
+                                            if (part.type === "tool-semanticSearchTool") {
                                                 return (
-                                                    <div
+                                                    <SemanticSearchToolUIComponent
                                                         key={index}
-                                                        className="text-xs text-muted-foreground italic"
-                                                    >
-                                                        Using tool: {toolPart.toolName || toolPart.toolCallId || "unknown"}
-                                                    </div>
+                                                        toolUI={{
+                                                            type: part.type,
+                                                            state: part.state,
+                                                            input: part.input ?? {},
+                                                            output: part.output,
+                                                            errorText: part.errorText,
+                                                        }}
+                                                    />
                                                 )
                                             }
                                             return null

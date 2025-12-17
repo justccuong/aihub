@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useCallback, useEffect, useState, useMemo } from "react"
-import type { UIMessage } from "ai"
+import type { PlaygroundUIMessage, PlaygroundUITools } from "@/features/chat/server/service"
 
 const STORAGE_KEY_PREFIX = "playground-chat-"
 
@@ -24,6 +24,7 @@ interface UsePlaygroundChatOptions {
 
 /**
  * Hook for playground chat with local storage persistence
+ * Uses PlaygroundUIMessage for proper tool typing
  */
 export const usePlaygroundChat = ({
     agentId,
@@ -33,7 +34,7 @@ export const usePlaygroundChat = ({
     const [isHydrated, setIsHydrated] = useState(false)
 
     // Load initial messages from localStorage
-    const getInitialMessages = useCallback((): UIMessage[] => {
+    const getInitialMessages = useCallback((): PlaygroundUIMessage[] => {
         if (typeof window === "undefined") return []
         try {
             const stored = localStorage.getItem(storageKey)
