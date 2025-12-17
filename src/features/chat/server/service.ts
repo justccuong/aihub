@@ -162,6 +162,22 @@ export async function streamAIResponse(
     }
 }
 
+const createMessages = ({
+    agent,
+    messages
+}: {
+    agent: AgentDetailResolved
+    messages: UIMessage[]
+}) => {
+    const systemPrompt = `${agent.systemPrompt}\n\n
+        Luôn sử dụng tool semanticSearch, nếu không có kết quả thì trả lời không biết, không được bịa kết quả.
+    `
+    return [
+        { role: "system" as const, content: systemPrompt },
+        ...convertToModelMessages(messages),
+    ]
+}
+
 // Non-stream Agentic RAG response with tool calling
 export async function generateAIResponse(
     {
@@ -184,10 +200,10 @@ export async function generateAIResponse(
         })
 
         // Build messages array
-        const messages = [
-            { role: "system" as const, content: agent.systemPrompt ?? "" },
-            ...convertToModelMessages(inputMessages),
-        ]
+        const messages = createMessages({
+            agent,
+            messages: inputMessages,
+        })
 
         // Use AI SDK streaming with provider and tools
         const result = await generateText({
