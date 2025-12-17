@@ -2,12 +2,14 @@
 
 import { useState, useCallback } from "react"
 import dynamic from "next/dynamic"
-import { MessageCircleIcon, BotIcon } from "lucide-react"
+import { MessageCircleIcon, BotIcon, SettingsIcon } from "lucide-react"
 import {
     ResizablePanelGroup,
     ResizablePanel,
     ResizableHandle,
 } from "@/components/ui/resizable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { usePlaygroundParams } from "../hooks/use-playground-params"
 import { Spinner } from "@/components/ui/spinner"
 import { AgentSelector } from "./agent-selector"
@@ -61,6 +63,7 @@ export const PlaygroundError = () => (
 
 export const PlaygroundContainer = () => {
     const [agentId] = usePlaygroundParams()
+    const isMobile = useIsMobile()
     const [customConfig, setCustomConfig] = useState<{
         llmId?: number
         systemPrompt?: string
@@ -82,35 +85,67 @@ export const PlaygroundContainer = () => {
     return (
         <div className="flex flex-col h-full">
             {/* Top bar with agent selector */}
-            <div className="flex items-center justify-between gap-4 p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="flex-1 max-w-sm">
+            <div className="flex items-center justify-between gap-2 p-2 md:gap-4 md:p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="flex-1 max-w-48 md:max-w-sm">
                     <AgentSelector />
                 </div>
                 <IntegrationDialog agentId={agentId} />
             </div>
 
-            {/* Main content with resizable panels */}
-            <ResizablePanelGroup direction="horizontal" className="flex-1">
-                <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-                    <div className="h-full border-r bg-muted/30">
-                        <AgentConfigPanel
-                            agentId={agentId}
-                            onConfigChange={handleConfigChange}
-                        />
-                    </div>
-                </ResizablePanel>
+            {/* Mobile: Tabs layout */}
+            {isMobile ? (
+                <Tabs defaultValue="chat" className="flex-1 flex flex-col">
+                    <TabsList className="w-full rounded-none border-b bg-muted/30">
+                        <TabsTrigger value="settings" className="flex-1 gap-2">
+                            <SettingsIcon className="size-4" />
+                            Settings
+                        </TabsTrigger>
+                        <TabsTrigger value="chat" className="flex-1 gap-2">
+                            <MessageCircleIcon className="size-4" />
+                            Chat
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="settings" className="flex-1 mt-0 overflow-auto">
+                        <div className="h-full bg-muted/30">
+                            <AgentConfigPanel
+                                agentId={agentId}
+                                onConfigChange={handleConfigChange}
+                            />
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="chat" className="flex-1 mt-0 overflow-hidden">
+                        <div className="h-full bg-background">
+                            <PlaygroundChat
+                                agentId={agentId}
+                                customConfig={customConfig}
+                            />
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            ) : (
+                /* Desktop: Resizable panels */
+                <ResizablePanelGroup direction="horizontal" className="flex-1">
+                    <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+                        <div className="h-full border-r bg-muted/30">
+                            <AgentConfigPanel
+                                agentId={agentId}
+                                onConfigChange={handleConfigChange}
+                            />
+                        </div>
+                    </ResizablePanel>
 
-                <ResizableHandle withHandle />
+                    <ResizableHandle withHandle />
 
-                <ResizablePanel defaultSize={70} minSize={40}>
-                    <div className="h-full bg-background">
-                        <PlaygroundChat
-                            agentId={agentId}
-                            customConfig={customConfig}
-                        />
-                    </div>
-                </ResizablePanel>
-            </ResizablePanelGroup>
+                    <ResizablePanel defaultSize={70} minSize={40}>
+                        <div className="h-full bg-background">
+                            <PlaygroundChat
+                                agentId={agentId}
+                                customConfig={customConfig}
+                            />
+                        </div>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+            )}
         </div>
     )
 }

@@ -54,13 +54,13 @@ export const AgentSelector = () => {
                             <span>Loading agents...</span>
                         </div>
                     ) : selectedAgent ? (
-                        <div className="flex items-center gap-2">
-                            <div className="size-6 bg-primary/10 rounded flex items-center justify-center">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="size-6 bg-primary/10 rounded flex items-center justify-center shrink-0">
                                 <BotIcon className="size-3.5 text-primary" />
                             </div>
-                            <span>{selectedAgent.name}</span>
+                            <span className="truncate">{selectedAgent.name}</span>
                             {selectedAgent.llmName && (
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-xs text-muted-foreground truncate hidden sm:inline">
                                     ({selectedAgent.llmName})
                                 </span>
                             )}
