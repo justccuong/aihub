@@ -22,13 +22,21 @@ export const IntegrationDialog = ({ agentId }: IntegrationDialogProps) => {
 
     const codes = {
         "React (AI SDK)": `import { useChat } from "@ai-sdk/react"
-import { useState } from "react"
+import { useState, FormEvent } from "react"
 
 export default function Chat() {
-    const [input, setInput] = useState("")
-    const { messages, sendMessage } = useChat({
-        api: "${"https://aihub.jsclub.dev"}/api/chat/completions/${agentId}",
+    const { messages, status, sendMessage, error } = useChat({
+        api: "https://aihub.jsclub.dev/api/chat/completions/1",
     })
+
+    const [input, setInput] = useState<string>("")
+
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (!input.trim()) return
+        sendMessage(input)
+        setInput("")
+    }
 
     return (
         <div>
@@ -39,24 +47,34 @@ export default function Chat() {
                         if (part.type === "text") {
                             return <span key={i}>{part.text}</span>
                         }
+                        if (part.type === "tool-call") {
+                            return <div key={i}>Tool call: {part.toolName}</div>
+                        }
                         return null
                     })}
                 </div>
             ))}
 
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    sendMessage({ text: input })
-                    setInput("")
-                }}
-            >
+            {error && (
+                <div style={{ color: "red" }}>
+                    Error: {error.message}
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
                 <input
+                    type="text"
                     value={input}
                     placeholder="Say something..."
                     onChange={(e) => setInput(e.target.value)}
+                    disabled={status === "streaming" || status === "submitted"}
                 />
-                <button type="submit">Send</button>
+                <button 
+                    type="submit" 
+                    disabled={status !== "ready" || !input.trim()}
+                >
+                    {status === "streaming" ? "Sending..." : "Send"}
+                </button>
             </form>
         </div>
     )
