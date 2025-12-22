@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { uiMessageSchema } from "./ui-message.schema";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { generateAIResponse, streamAIResponse } from "./service";
+import { generateAIResponse, streamAIResponse, streamDisabledResponse } from "./service";
 import { getLlmById } from "@/features/llms/server/service";
 import { getAgentById } from "@/features/agents/server/service";
 import { agentParams } from "../params";
@@ -12,6 +12,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 export const chatRequestSchema = z.object({
     stream: z.boolean().default(false),
     messages: uiMessageSchema.array(),
+    errorMessage: z.string().optional(),
 })
 
 export const playgroundRequestSchema = chatRequestSchema.extend({
@@ -90,11 +91,22 @@ export const chatRouter = new Hono()
             return c.json({ error: 'Rate limit exceeded' }, 429)
         }
         const { agentId } = c.req.valid("param")
-        const { messages, stream } = c.req.valid("json")
+        const { messages, stream, errorMessage } = c.req.valid("json")
 
         const agentDetail = await getAgentById(agentId)
         if (!agentDetail) {
             return c.json({ error: 'Agent not found or has no LLM configured' }, 404)
+        }
+
+        // Check if agent is disabled
+        if (!agentDetail.isEnabled) {
+            const disabledMessage = errorMessage ?? "This agent is currently disabled."
+
+            if (stream) {
+                return streamDisabledResponse(disabledMessage)
+            } else {
+                return c.json({ data: { text: disabledMessage } })
+            }
         }
 
         try {

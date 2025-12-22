@@ -114,6 +114,7 @@ export const agents = sqliteTable("agents", {
     id: int("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
     description: text("description").default(""),
+    isEnabled: integer("is_enabled", { mode: "boolean" }).notNull().default(true),
     systemPrompt: text("system_prompt").default(""),
     topK: int("top_k").default(40),
     temperature: int("temperature").default(70), // 0-100, will be converted to 0.0-1.0
