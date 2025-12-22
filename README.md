@@ -1,4 +1,4 @@
-# 🤖 AI Hub - Nền Tảng Quản Lý AI Agent
+# 🤖 AI Hub - Nền Tảng Quản Lý AI Agent JS Club
 
 > **Dự án học tập** - Xây dựng AI Agent Platform đầy đủ tính năng trên Cloudflare Workers với Next.js
 
