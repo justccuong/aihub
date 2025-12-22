@@ -6,6 +6,7 @@ import { AgentDetail } from "@/features/agents/server/service"
 import { chatLogger as logger } from "@/lib/logger"
 import { getDb } from "@/lib/db"
 import { ollamaKeys } from "@/lib/schema"
+import { getKV, putKV } from "@/lib/kv"
 
 type AgentDetailResolved = NonNullable<AgentDetail>
 
@@ -14,6 +15,8 @@ type AgentDetailResolved = NonNullable<AgentDetail>
 // ============================================
 
 const OLLAMA_WEB_SEARCH_URL = "https://ollama.com/api/web_search"
+const OLLAMA_KEYS_CACHE_KEY = "cache:ollama-keys"
+const OLLAMA_KEYS_CACHE_TTL = 60 // 1 minute TTL in seconds
 
 // Round-robin index for key rotation (in-memory, resets on cold start)
 let currentKeyIndex = 0
@@ -33,9 +36,36 @@ interface OllamaWebSearchResponse {
  * Get the next Ollama API key using round-robin rotation
  * If a key hits rate limit, it will try the next key
  */
-async function getNextOllamaKey(): Promise<{ id: number; key: string } | null> {
+/**
+ * Get cached Ollama keys from KV, refreshing from database if cache expired
+ */
+async function getCachedOllamaKeys(): Promise<Array<{ id: number; key: string }>> {
+    // Try to get from KV cache first
+    const cached = await getKV<Array<{ id: number; key: string }>>(OLLAMA_KEYS_CACHE_KEY, "json")
+    if (cached && cached.length > 0) {
+        logger.debug('Using cached Ollama API keys from KV', { keyCount: cached.length })
+        return cached
+    }
+
+    // Cache miss or expired, fetch from database
     const db = await getDb()
     const keys = await db.select().from(ollamaKeys)
+
+    // Cache in KV with TTL
+    if (keys.length > 0) {
+        await putKV(OLLAMA_KEYS_CACHE_KEY, JSON.stringify(keys), { expirationTtl: OLLAMA_KEYS_CACHE_TTL })
+        logger.debug('Cached Ollama API keys to KV', { keyCount: keys.length })
+    }
+
+    return keys
+}
+
+/**
+ * Get the next Ollama API key using round-robin rotation
+ * If a key hits rate limit, it will try the next key
+ */
+async function getNextOllamaKey(): Promise<{ id: number; key: string } | null> {
+    const keys = await getCachedOllamaKeys()
 
     if (keys.length === 0) {
         logger.warn('No Ollama API keys found in database')
@@ -54,8 +84,7 @@ async function getNextOllamaKey(): Promise<{ id: number; key: string } | null> {
  * Perform web search using Ollama API with automatic key rotation on rate limit
  */
 async function performOllamaWebSearch(query: string, maxRetries = 3): Promise<OllamaWebSearchResponse> {
-    const db = await getDb()
-    const keys = await db.select().from(ollamaKeys)
+    const keys = await getCachedOllamaKeys()
 
     if (keys.length === 0) {
         throw new Error('No Ollama API keys configured')
@@ -79,7 +108,7 @@ async function performOllamaWebSearch(query: string, maxRetries = 3): Promise<Ol
                     'Content-Type': 'application/json',
                 },
                 json: { query },
-                timeout: 30000, // 30 second timeout
+                timeout: 15000, // 15 second timeout for better CPU efficiency
             }).json<OllamaWebSearchResponse>()
 
             logger.info('Ollama web search successful', { query, resultCount: response.results?.length ?? 0 })
@@ -246,7 +275,7 @@ export const createSemanticSearchTool = (
                 logger.debug('Semantic search datasource groups', { groups: agent.datasourceGroups })
 
                 // Use vectorize search
-                const vectorResults = await searchVectors(query, agent.datasourceGroups.map(g => g.id), agent.topK ?? 40)
+                const vectorResults = await searchVectors(query, agent.datasourceGroups.map(g => g.id), agent.topK ?? 20)
 
                 logger.info('Semantic search completed', { query, resultCount: vectorResults.length })
                 if (vectorResults.length === 0) {

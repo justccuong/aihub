@@ -102,7 +102,7 @@ export async function streamAIResponse(
             toolChoice: "auto",
             temperature: normalizeTemperature(agent.temperature ?? 70),
             maxOutputTokens: agent.maxTokens ?? 1024,
-            stopWhen: stepCountIs(5),
+            stopWhen: stepCountIs(3),
         })
 
         logger.info('AI stream started successfully', { agentId: agent.id })
@@ -169,7 +169,7 @@ export async function generateAIResponse(
             toolChoice: "auto",
             temperature: normalizeTemperature(agent.temperature ?? 70),
             maxOutputTokens: agent.maxTokens ?? 1024,
-            stopWhen: stepCountIs(5),
+            stopWhen: stepCountIs(3),
         })
 
         logger.info('AI generate completed successfully', { agentId: agent.id })
