@@ -7,6 +7,7 @@ import {
     LogOutIcon,
     PlayIcon,
 } from "lucide-react"
+import "client-only"
 import {
     Sidebar,
     SidebarContent,
@@ -24,6 +25,8 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { Path } from "@/config/constants"
 import { signOut } from "@/lib/auth/client"
+import { useTheme } from "next-themes"
+import { useClient } from "@/hooks/use-client"
 
 const menuItems = [
     {
@@ -40,6 +43,8 @@ const menuItems = [
 export const AppSidebar = () => {
     const pathname = usePathname()
     const router = useRouter()
+    const isClient = useClient()
+    const { resolvedTheme } = useTheme()
 
     const handleLogout = async () => {
         await signOut({
@@ -55,16 +60,27 @@ export const AppSidebar = () => {
         <Sidebar collapsible="icon">
             <SidebarHeader>
                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
-                        <Link href="/" prefetch>
-                            <Image
-                                src="/logos/logo.webp"
-                                alt="Nodebase"
-                                width={30}
-                                height={30}
-                            />
+                    <SidebarMenuButton asChild className="h-10 px-4">
+                        <Link href="/" prefetch suppressHydrationWarning>
+                            {
+                                isClient && resolvedTheme === "dark" ? (
+                                    <Image
+                                        src="/JS_white.png"
+                                        alt="JS Club AI Hub"
+                                        width={50}
+                                        height={50}
+                                    />
+                                ) : (
+                                    <Image
+                                        src="/JS_logo.png"
+                                        alt="JS Club AI Hub"
+                                        width={50}
+                                        height={50}
+                                    />
+                                )
+                            }
                             <span className="font-semibold text-sm">
-                                Admin Dashboard
+                                JS Club AI Hub
                             </span>
                         </Link>
                     </SidebarMenuButton>
