@@ -249,8 +249,37 @@ export async function searchVectors(
 
 **Lưu ý quan trọng:**
 - Dimensions phải khớp với model embedding (768 cho `bge-base-en-v1.5`)
-- Metadata filtering cho phép multi-tenant search
 - Hỗ trợ operators: `$eq`, `$ne`, `$in`, `$nin`, `$lt`, `$lte`, `$gt`, `$gte`
+
+**Metadata và Multi-Agent Isolation:**
+
+Trong project này, mỗi vector được lưu với metadata `datasourceGroupId`:
+
+```mermaid
+flowchart LR
+    subgraph Agent1["Agent A"]
+        G1["Datasource Group 1"]
+        G2["Datasource Group 2"]
+    end
+    
+    subgraph Agent2["Agent B"]
+        G3["Datasource Group 3"]
+    end
+    
+    subgraph Vectorize["Vectorize Index"]
+        V1["Vector 1<br/>metadata: groupId=1"]
+        V2["Vector 2<br/>metadata: groupId=2"]
+        V3["Vector 3<br/>metadata: groupId=3"]
+    end
+    
+    G1 --> V1
+    G2 --> V2
+    G3 --> V3
+```
+
+- Khi Agent A search, chỉ tìm trong `groupId: [1, 2]`
+- Khi Agent B search, chỉ tìm trong `groupId: [3]`
+- Đảm bảo mỗi Agent chỉ truy cập knowledge base được assign
 
 ---
 
