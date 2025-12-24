@@ -42,6 +42,17 @@ flowchart TB
         end
     end
     
+    subgraph AISDK["AI SDK"]
+        SDK["Unified Interface<br/>(streamText, generateText)"]
+        Tools["Tool Calling<br/>(semanticSearch, webSearch)"]
+    end
+    
+    subgraph Providers["LLM Providers"]
+        OpenAI["OpenAI<br/>(@ai-sdk/openai)"]
+        Google["Google AI<br/>(@ai-sdk/google)"]
+        Others["Other Providers<br/>(Anthropic, etc.)"]
+    end
+    
     subgraph Services["Cloudflare Services"]
         D1[("D1 Database<br/>(SQLite)")]
         Vectorize[("Vectorize<br/>(Vector DB)")]
@@ -50,22 +61,59 @@ flowchart TB
     end
     
     Browser --> CF
+    Hono --> SDK
+    SDK --> Tools
+    SDK --> OpenAI
+    SDK --> Google
+    SDK --> Others
+    Tools --> Vectorize
+    Tools --> WorkersAI
     NextJS --> D1
-    NextJS --> Vectorize
-    NextJS --> WorkersAI
     NextJS --> KV
 ```
 
-### Flow Chính của Ứng Dụng
+### Flow Chính của Ứng Dụng (Agentic AI)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant API as Chat API
+    participant LLM as LLM Provider
+    participant RAG as semanticSearchTool
+    participant Web as webSearchTool
+
+    User->>API: Gửi message
+    API->>API: Load Agent Config (KV/D1)
+    API->>LLM: Stream request với tools
+    
+    loop Tool Calling Loop (max 5 steps)
+        LLM->>LLM: Quyết định sử dụng tool
+        alt semanticSearchTool
+            LLM->>RAG: Query semantic search
+            RAG->>RAG: Generate embedding (Workers AI)
+            RAG->>RAG: Search Vectorize
+            RAG-->>LLM: Kết quả tìm kiếm
+        else webSearchTool
+            LLM->>Web: Query web search
+            Web->>Web: Ollama Web Search API
+            Web-->>LLM: Kết quả từ internet
+        end
+    end
+    
+    LLM-->>API: Final response
+    API-->>User: Stream response
+```
 
 1. **User gửi message** → Chat API nhận request
 2. **Load Agent Config** → Lấy từ KV cache hoặc D1 database
-3. **RAG Pipeline**: 
-   - Generate embedding từ query (Workers AI)
-   - Search trong Vectorize với metadata filter
-   - Inject context vào prompt
-4. **LLM Response** → OpenAI/Google API trả về kết quả
+3. **Agentic Tool Calling**: LLM tự động quyết định sử dụng tools khi cần
+   - `semanticSearchTool`: Tìm kiếm trong knowledge base (Vectorize)
+   - `webSearchTool`: Tìm kiếm thông tin mới nhất từ internet
+4. **LLM Response** → Tổng hợp kết quả từ tools và trả lời
 5. **Stream Response** → Trả về client real-time
+
+> [!NOTE]
+> Flow sử dụng AI SDK với `toolChoice: "auto"` và `stepCountIs(5)` để giới hạn số lần gọi tool tối đa là 5.
 
 ---
 
