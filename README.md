@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="public/JS_white.png" alt="JS Club Logo" width="120" />
+</p>
+
 # 🤖 AI Hub - Nền Tảng Quản Lý AI Agent JS Club
+
+![Screenshot](screenshot.png)
 
 > **Dự án học tập** - Xây dựng AI Agent Platform đầy đủ tính năng trên Cloudflare Workers với Next.js
 
@@ -483,11 +489,14 @@ aihub/
 
 ### Authentication
 ```
-POST /api/auth/sign-up        # Đăng ký
+POST /api/auth/sign-up        # Đăng ký (⚠️ chỉ có trên develop env)
 POST /api/auth/sign-in        # Đăng nhập
 POST /api/auth/sign-out       # Đăng xuất
 GET  /api/auth/session        # Lấy session hiện tại
 ```
+
+> [!NOTE]
+> Route `/signup` chỉ tồn tại trên môi trường develop, dùng để tạo tài khoản admin.
 
 ### LLMs (Protected)
 ```

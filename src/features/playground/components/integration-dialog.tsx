@@ -22,11 +22,20 @@ export const IntegrationDialog = ({ agentId }: IntegrationDialogProps) => {
 
     const codes = {
         "React (AI SDK)": `import { useChat } from "@ai-sdk/react"
-import { useState, FormEvent } from "react"
+import { DefaultChatTransport } from "ai"
+import { useMemo, useState, FormEvent } from "react"
 
 export default function Chat() {
+    // Create transport with custom API endpoint
+    const transport = useMemo(() => {
+        return new DefaultChatTransport({
+            api: "https://aihub.jsclub.dev/api/chat/completions/${agentId}",
+        })
+    }, [])
+
     const { messages, status, sendMessage, error } = useChat({
-        api: "https://aihub.jsclub.dev/api/chat/completions/1",
+        id: "my-chat",
+        transport,
     })
 
     const [input, setInput] = useState<string>("")
