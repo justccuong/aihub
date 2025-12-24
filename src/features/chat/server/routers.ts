@@ -31,7 +31,10 @@ export const chatRouter = new Hono()
     .post('/playground/:agentId', protectedRoute, zValidator('json', playgroundRequestSchema), zValidator('param', agentParams), async (c) => {
 
         const { agentId } = c.req.valid("param")
-        const { messages, customConfig, stream } = c.req.valid("json")
+        const { messages: rawMessages, customConfig, stream } = c.req.valid("json")
+
+        // Filter out system role messages to prevent prompt injection
+        const messages = rawMessages.filter(m => m.role !== "system")
 
         // Get agent with LLM data
         let agentDetail = await getAgentById(agentId)
@@ -90,7 +93,10 @@ export const chatRouter = new Hono()
             return c.json({ error: 'Rate limit exceeded' }, 429)
         }
         const { agentId } = c.req.valid("param")
-        const { messages, stream } = c.req.valid("json")
+        const { messages: rawMessages, stream } = c.req.valid("json")
+
+        // Filter out system role messages to prevent prompt injection
+        const messages = rawMessages.filter(m => m.role !== "system")
 
         const agentDetail = await getAgentById(agentId)
         if (!agentDetail) {

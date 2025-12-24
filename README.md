@@ -28,28 +28,32 @@ AI Hub là một nền tảng quản lý và triển khai AI Agent, cho phép t�
 
 ## 🏗 Kiến Trúc Tổng Quan
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                          Client (Browser)                           │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                   Cloudflare Workers (Edge Runtime)                 │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │                    Next.js (OpenNext)                        │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │   │
-│  │  │  React UI    │  │  API Routes  │  │  Hono Backend    │   │   │
-│  │  │  (App Router)│  │  (/api/*)    │  │  (REST API)      │   │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────────┘   │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
-         │              │              │              │
-         ▼              ▼              ▼              ▼
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│  D1 Database │ │   Vectorize  │ │  Workers AI  │ │  KV Storage  │
-│   (SQLite)   │ │ (Vector DB)  │ │ (Embeddings) │ │   (Cache)    │
-└──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
+```mermaid
+flowchart TB
+    subgraph Client
+        Browser["Client (Browser)"]
+    end
+    
+    subgraph CF["Cloudflare Workers (Edge Runtime)"]
+        subgraph NextJS["Next.js (OpenNext)"]
+            ReactUI["React UI<br/>(App Router)"]
+            APIRoutes["API Routes<br/>(/api/*)"]
+            Hono["Hono Backend<br/>(REST API)"]
+        end
+    end
+    
+    subgraph Services["Cloudflare Services"]
+        D1[("D1 Database<br/>(SQLite)")]
+        Vectorize[("Vectorize<br/>(Vector DB)")]
+        WorkersAI["Workers AI<br/>(Embeddings)"]
+        KV[("KV Storage<br/>(Cache)")]
+    end
+    
+    Browser --> CF
+    NextJS --> D1
+    NextJS --> Vectorize
+    NextJS --> WorkersAI
+    NextJS --> KV
 ```
 
 ### Flow Chính của Ứng Dụng
@@ -428,44 +432,76 @@ aihub/
 
 ### Entity Relationship Diagram
 
-```
-┌─────────────┐      ┌─────────────┐      ┌──────────────────┐
-│    user     │      │   session   │      │    account       │
-├─────────────┤      ├─────────────┤      ├──────────────────┤
-│ id (PK)     │←─────│ userId (FK) │      │ id (PK)          │
-│ name        │      │ token       │      │ userId (FK)      │
-│ email       │      │ expiresAt   │      │ providerId       │
-│ image       │      │ ipAddress   │      │ accessToken      │
-│ createdAt   │      │ userAgent   │      │ refreshToken     │
-└─────────────┘      └─────────────┘      └──────────────────┘
-
-┌─────────────┐      ┌─────────────┐      ┌──────────────────┐
-│    llms     │      │   agents    │      │ datasource_groups│
-├─────────────┤      ├─────────────┤      ├──────────────────┤
-│ id (PK)     │←─────│ llmId (FK)  │      │ id (PK)          │
-│ name        │      │ id (PK)     │      │ name             │
-│ provider    │      │ name        │      │ description      │
-│ model       │      │ description │      └────────┬─────────┘
-│ baseUrl     │      │ systemPrompt│               │
-│ apiKey      │      │ temperature │               │
-└─────────────┘      │ topK        │               │
-                     │ maxTokens   │               │
-                     └──────┬──────┘               │
-                            │                      │
-                            │  ┌───────────────────┴────────┐
-                            │  │  agent_datasource_groups   │
-                            │  ├────────────────────────────┤
-                            └──│ agentId (FK)               │
-                               │ datasourceGroupId (FK)     │
-                               └────────────────────────────┘
-
-┌──────────────────┐
-│   datasources    │
-├──────────────────┤
-│ id (PK)          │
-│ content          │
-│ datasourceGroupId│──→ datasource_groups.id
-└──────────────────┘
+```mermaid
+erDiagram
+    user {
+        int id PK
+        string name
+        string email
+        string image
+        timestamp createdAt
+    }
+    
+    session {
+        int id PK
+        int userId FK
+        string token
+        timestamp expiresAt
+        string ipAddress
+        string userAgent
+    }
+    
+    account {
+        int id PK
+        int userId FK
+        string providerId
+        string accessToken
+        string refreshToken
+    }
+    
+    llms {
+        int id PK
+        string name
+        string provider
+        string model
+        string baseUrl
+        string apiKey
+    }
+    
+    agents {
+        int id PK
+        int llmId FK
+        string name
+        string description
+        string systemPrompt
+        int temperature
+        int topK
+        int maxTokens
+    }
+    
+    datasource_groups {
+        int id PK
+        string name
+        string description
+    }
+    
+    agent_datasource_groups {
+        int agentId FK
+        int datasourceGroupId FK
+    }
+    
+    datasources {
+        int id PK
+        int datasourceGroupId FK
+        string content
+    }
+    
+    user ||--o{ session : "has"
+    user ||--o{ account : "has"
+    llms ||--o{ agents : "powers"
+    agents ||--o{ agent_datasource_groups : "uses"
+    datasource_groups ||--o{ agent_datasource_groups : "belongs to"
+    datasource_groups ||--o{ datasources : "contains"
 ```
 
 ### Mô tả các bảng:
@@ -503,7 +539,7 @@ GET  /api/auth/session        # Lấy session hiện tại
 GET    /api/llms              # List LLMs với pagination
 POST   /api/llms              # Tạo LLM mới
 GET    /api/llms/:id          # Chi tiết LLM
-PUT    /api/llms/:id          # Cập nhật LLM
+PATCH  /api/llms/:id          # Cập nhật LLM
 DELETE /api/llms/:id          # Xóa LLM
 ```
 
@@ -512,22 +548,26 @@ DELETE /api/llms/:id          # Xóa LLM
 GET    /api/agents            # List agents với search
 POST   /api/agents            # Tạo agent mới
 GET    /api/agents/:id        # Chi tiết agent
-PUT    /api/agents/:id        # Cập nhật agent
+PATCH  /api/agents/:id        # Cập nhật agent
 DELETE /api/agents/:id        # Xóa agent
 ```
 
 ### Datasource Groups (Protected)
 ```
-GET    /api/datasource-groups        # List groups
-POST   /api/datasource-groups        # Tạo group mới
-DELETE /api/datasource-groups/:id    # Xóa group
+GET    /api/datasource-groups            # List groups
+POST   /api/datasource-groups            # Tạo group mới
+GET    /api/datasource-groups/:id        # Chi tiết group
+PATCH  /api/datasource-groups/:id        # Cập nhật group
+DELETE /api/datasource-groups/:id        # Xóa group
 ```
 
 ### Datasources (Protected)
 ```
-GET    /api/datasources              # List datasources
-POST   /api/datasources              # Tạo datasource (auto-embed)
-DELETE /api/datasources/:id          # Xóa datasource
+GET    /api/datasources/group/:groupId   # List datasources theo group
+POST   /api/datasources                  # Tạo datasource (auto-embed)
+GET    /api/datasources/:id              # Chi tiết datasource
+PATCH  /api/datasources/:id              # Cập nhật datasource
+DELETE /api/datasources/:id              # Xóa datasource
 ```
 
 ### Chat
@@ -539,12 +579,21 @@ POST /api/chat/playground/:agentId
 POST /api/chat/completions/:agentId  
 ```
 
-**Request body:**
+**Request body (UIMessage format):**
 ```json
 {
     "stream": true,
     "messages": [
-        { "role": "user", "content": "Xin chào!" }
+        {
+            "id": "msg-1",
+            "role": "user",
+            "parts": [
+                {
+                    "type": "text",
+                    "text": "Xin chào!"
+                }
+            ]
+        }
     ]
 }
 ```
