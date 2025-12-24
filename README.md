@@ -34,8 +34,8 @@ flowchart TB
         Browser["Client (Browser)"]
     end
     
-    subgraph CF["Cloudflare Workers (Edge Runtime)"]
-        subgraph NextJS["Next.js (OpenNext)"]
+    subgraph CF["Cloudflare Workers"]
+        subgraph NextJS["Next.js"]
             ReactUI["React UI<br/>(App Router)"]
             APIRoutes["API Routes<br/>(/api/*)"]
             Hono["Hono Backend<br/>(REST API)"]
