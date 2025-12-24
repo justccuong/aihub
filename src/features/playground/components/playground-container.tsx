@@ -16,6 +16,7 @@ import { AgentSelector } from "./agent-selector"
 import { IntegrationDialog } from "./integration-dialog"
 import { AgentConfigPanel } from "./agent-config-panel"
 import type { PlaygroundChatProps } from "./playground-chat"
+import { AppHeader } from "@/components/app-header"
 
 // Dynamic import to exclude heavy AI SDK dependencies from SSR bundle
 const PlaygroundChat = dynamic<PlaygroundChatProps>(
@@ -31,7 +32,7 @@ const PlaygroundChat = dynamic<PlaygroundChatProps>(
 )
 
 const NoAgentSelected = () => (
-    <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
         <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center">
             <MessageCircleIcon className="size-8 text-primary" />
         </div>
@@ -79,18 +80,24 @@ export const PlaygroundContainer = () => {
 
     // No agent selected - show selector
     if (!agentId) {
-        return <NoAgentSelected />
+        return <>
+            <AppHeader />
+            <NoAgentSelected />
+        </>
     }
 
     return (
         <div className="flex flex-col h-full">
             {/* Top bar with agent selector */}
-            <div className="flex items-center justify-between gap-2 p-2 md:gap-4 md:p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="flex-1 max-w-48 md:max-w-sm">
+            <AppHeader
+                leftToolbar={
                     <AgentSelector />
-                </div>
-                <IntegrationDialog agentId={agentId} />
-            </div>
+                }
+                rightToolbar={
+                    <IntegrationDialog agentId={agentId} />
+                }
+            />
+
 
             {/* Mobile: Tabs layout */}
             {isMobile ? (

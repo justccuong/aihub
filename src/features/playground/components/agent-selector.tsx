@@ -95,9 +95,7 @@ export const AgentSelector = () => {
                                         )}
                                     />
                                     <div className="flex items-center gap-2">
-                                        <div className="size-6 bg-primary/10 rounded flex items-center justify-center">
-                                            <BotIcon className="size-3.5 text-primary" />
-                                        </div>
+
                                         <div className="flex flex-col">
                                             <span>{agent.name}</span>
                                             {agent.llmName && (
