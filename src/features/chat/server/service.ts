@@ -24,6 +24,34 @@ export function normalizeTemperature(temp: number): number {
     return Math.max(0, Math.min(1, temp / 100))
 }
 
+/**
+ * Create a streaming response for disabled agents matching AI SDK UI Message Stream protocol
+ * @see https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol
+ */
+export function streamDisabledResponse(message: string): Response {
+    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+    const textId = `text_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+
+    const events = [
+        `data: ${JSON.stringify({ type: "start", messageId })}`,
+        `data: ${JSON.stringify({ type: "text-start", id: textId })}`,
+        `data: ${JSON.stringify({ type: "text-delta", id: textId, delta: message })}`,
+        `data: ${JSON.stringify({ type: "text-end", id: textId })}`,
+        `data: ${JSON.stringify({ type: "finish", messageId, finishReason: "stop" })}`,
+    ]
+
+    const body = events.join("\n\n") + "\n\n"
+
+    return new Response(body, {
+        headers: {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "x-vercel-ai-ui-message-stream": "v1",
+        },
+    })
+}
+
 // Create AI Provider based on provider data
 export const createAIProvider = ({ llm }: AgentDetailResolved) => {
     logger.info('Creating AI provider', { provider: llm.provider, model: llm.model })

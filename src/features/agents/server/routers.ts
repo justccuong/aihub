@@ -10,6 +10,7 @@ import {
     updateAgent,
     deleteAgent,
     agentExists,
+    toggleAgentEnabled,
 } from './service'
 
 // Validation schemas
@@ -109,5 +110,22 @@ export const agentsRouter = new Hono()
         } catch (error) {
             console.error('Error deleting agent:', error)
             return c.json({ error: 'Failed to delete agent' }, 500)
+        }
+    })
+
+    // Toggle agent enabled status
+    .patch('/:id/toggle', zValidator('param', idParamSchema), async (c) => {
+        try {
+            const { id } = c.req.valid('param')
+            const updatedAgent = await toggleAgentEnabled(id)
+
+            if (!updatedAgent) {
+                return c.json({ error: 'Agent not found' }, 404)
+            }
+
+            return c.json({ data: updatedAgent })
+        } catch (error) {
+            console.error('Error toggling agent:', error)
+            return c.json({ error: 'Failed to toggle agent' }, 500)
         }
     })

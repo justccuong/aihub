@@ -138,6 +138,24 @@ export const deleteAgentMutation = async (id: number) => {
     return response.json()
 }
 
+/**
+ * Mutation function for toggling agent enabled status
+ */
+export const toggleAgentMutation = async (id: number) => {
+    const response = await honoClient.api.agents[':id'].toggle.$patch({
+        param: { id: String(id) },
+    })
+
+    if (!response.ok) {
+        throw new ApiError(
+            response.status === 404 ? 'Agent not found' : 'Failed to toggle agent',
+            response.status
+        )
+    }
+
+    return response.json()
+}
+
 // ============================================
 // Utility Functions
 // ============================================

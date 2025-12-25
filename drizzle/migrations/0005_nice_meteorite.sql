@@ -1,0 +1,1 @@
+ALTER TABLE `agents` ADD `is_enabled` integer DEFAULT true NOT NULL;

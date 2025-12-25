@@ -141,6 +141,7 @@ export async function listAgents(params: ListAgentsParams) {
             id: agents.id,
             name: agents.name,
             description: agents.description,
+            isEnabled: agents.isEnabled,
             systemPrompt: agents.systemPrompt,
             topK: agents.topK,
             temperature: agents.temperature,
@@ -190,6 +191,7 @@ async function fetchAgentFromDb(id: number) {
             id: agents.id,
             name: agents.name,
             description: agents.description,
+            isEnabled: agents.isEnabled,
             systemPrompt: agents.systemPrompt,
             topK: agents.topK,
             temperature: agents.temperature,
@@ -356,4 +358,37 @@ export async function deleteAgent(id: number) {
     // Invalidate cache after delete
     await invalidateAgentCache(id)
     logger.info('Agent deleted successfully', { agentId: id })
+}
+
+/**
+ * Toggle agent enabled status
+ */
+export async function toggleAgentEnabled(id: number) {
+    logger.info('Toggling agent enabled status', { agentId: id })
+    const db = await getDb()
+
+    // Get current agent
+    const current = await db
+        .select({ isEnabled: agents.isEnabled })
+        .from(agents)
+        .where(eq(agents.id, id))
+        .limit(1)
+
+    if (!current[0]) {
+        return null
+    }
+
+    // Toggle isEnabled
+    const newIsEnabled = !current[0].isEnabled
+    const result = await db
+        .update(agents)
+        .set({ isEnabled: newIsEnabled, updatedAt: new Date() })
+        .where(eq(agents.id, id))
+        .returning()
+
+    // Invalidate cache after toggle
+    await invalidateAgentCache(id)
+
+    logger.info('Agent enabled status toggled', { agentId: id, isEnabled: newIsEnabled })
+    return result[0]
 }
