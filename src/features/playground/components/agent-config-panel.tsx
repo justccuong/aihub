@@ -198,7 +198,7 @@ export const AgentConfigPanel = ({ agentId, onConfigChange }: AgentConfigPanelPr
                                             <Textarea
                                                 placeholder="You are a helpful assistant..."
                                                 rows={6}
-                                                className="text-xs"
+                                                className="text-xs max-h-40 overflow-y-auto resize-none"
                                                 {...field}
                                             />
                                         </FormControl>
