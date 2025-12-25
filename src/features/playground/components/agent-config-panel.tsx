@@ -160,14 +160,14 @@ export const AgentConfigPanel = ({ agentId, onConfigChange, onLoadingChange }: A
     }
 
     return (
-        <div className="flex flex-col h-full">
-            {/* Header with toggle */}
-            <div className="p-4 border-b flex items-center justify-between">
+        <div className="flex flex-col h-full overflow-hidden">
+            {/* Header with toggle - sticky */}
+            <div className="shrink-0 p-4 border-b flex items-center justify-between bg-background">
                 <div className="flex items-center gap-3">
-                    <div className={`size-10 rounded-lg flex items-center justify-center ${agent.isEnabled ? 'bg-primary/10' : 'bg-muted'}`}>
-                        <BotIcon className={`size-5 ${agent.isEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div className={`size-7 rounded-lg flex items-center justify-center ${agent.isEnabled ? 'bg-primary/10' : 'bg-muted'}`}>
+                        <BotIcon className={`size-4 ${agent.isEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
                     </div>
-                    <div>
+                    <div className="flex gap-x-4 items-center">
                         <h3 className="font-semibold">{agent.name}</h3>
                         <Badge variant={agent.isEnabled ? 'default' : 'secondary'} className="text-xs">
                             {agent.isEnabled ? 'Enabled' : 'Disabled'}
@@ -183,7 +183,7 @@ export const AgentConfigPanel = ({ agentId, onConfigChange, onLoadingChange }: A
             {/* Form */}
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
-                    <ScrollArea className="flex-1">
+                    <div className="flex-1 overflow-y-auto">
                         <div className="p-4 space-y-4">
                             <FormField
                                 control={form.control}
@@ -408,7 +408,7 @@ export const AgentConfigPanel = ({ agentId, onConfigChange, onLoadingChange }: A
                                 )}
                             />
                         </div>
-                    </ScrollArea>
+                    </div>
 
                     {/* Footer */}
                     <div className="p-4 border-t">
