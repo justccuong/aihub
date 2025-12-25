@@ -5,6 +5,7 @@ import {
     createAgentMutation,
     updateAgentMutation,
     deleteAgentMutation,
+    toggleAgentMutation,
     agentsKeys,
 } from '../query-options'
 import { agentsQuerySchema } from '../params'
@@ -89,6 +90,24 @@ export const useDeleteAgent = () => {
         },
         onError: (error: Error) => {
             toast.error(error.message || 'Failed to delete agent')
+        },
+    })
+}
+
+/**
+ * Hook to toggle agent enabled status
+ */
+export const useToggleAgent = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: toggleAgentMutation,
+        onSuccess: (data, id) => {
+            queryClient.invalidateQueries({ queryKey: agentsKeys.detail(id) })
+            queryClient.invalidateQueries({ queryKey: agentsKeys.lists() })
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || 'Failed to toggle agent')
         },
     })
 }

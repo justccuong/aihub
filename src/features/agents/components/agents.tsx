@@ -10,16 +10,24 @@ import {
     EntitySearch,
     EntityStateView,
 } from "@/components/entity-components"
-import { useAgentsList, useDeleteAgent } from "../hooks/use-agents"
+import { useAgentsList, useDeleteAgent, useToggleAgent } from "../hooks/use-agents"
 import { useAgentsParams } from "../hooks/use-agents-params"
 import { useEntitySearch } from "@/hooks/use-entity-search"
 import { Spinner } from "@/components/ui/spinner"
-import { AlertTriangleIcon, BotIcon, PackageOpenIcon, DatabaseIcon } from "lucide-react"
+import { AlertTriangleIcon, BotIcon, PackageOpenIcon, DatabaseIcon, PlayIcon } from "lucide-react"
 import { useState } from "react"
 import { AgentsDialog } from "./agents-dialog"
 import { honoClient } from "@/lib/api/hono-client"
 import { InferResponseType } from "hono/client"
 import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type AgentsSuccessResponse = InferResponseType<typeof honoClient.api.agents.$get, 200>
 type AgentItem = AgentsSuccessResponse["data"][number]
@@ -28,6 +36,8 @@ export const AgentList = () => {
     const [params, setParams] = useAgentsParams()
     const { data, isFetching } = useAgentsList(params)
     const deleteAgent = useDeleteAgent()
+    const toggleAgent = useToggleAgent()
+    const router = useRouter()
     const [editItem, setEditItem] = useState<AgentItem | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -80,8 +90,42 @@ export const AgentList = () => {
                             </div>
                         }
                         image={
-                            <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <BotIcon className="size-5 text-primary" />
+                            <div className={`size-10 rounded-lg flex items-center justify-center ${item.isEnabled ? 'bg-primary/10' : 'bg-muted'}`}>
+                                <BotIcon className={`size-5 ${item.isEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                            </div>
+                        }
+                        actions={
+                            <div className="flex items-center gap-2">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span onClick={(e) => e.stopPropagation()}>
+                                            <Switch
+                                                checked={item.isEnabled}
+                                                onCheckedChange={() => toggleAgent.mutate(item.id)}
+                                                disabled={toggleAgent.isPending}
+                                            />
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {item.isEnabled ? 'Disable agent' : 'Enable agent'}
+                                    </TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                router.push(`/playground?agentId=${item.id}`)
+                                            }}
+                                        >
+                                            <PlayIcon className="size-4" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Test agent</TooltipContent>
+                                </Tooltip>
                             </div>
                         }
                         onEdit={() => handleEdit(item)}
@@ -109,6 +153,7 @@ export const AgentList = () => {
         </>
     )
 }
+
 
 export const AgentHeader = ({ disabled }: { disabled?: boolean }) => {
     const [dialogOpen, setDialogOpen] = useState(false)

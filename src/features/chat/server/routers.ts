@@ -100,7 +100,7 @@ export const chatRouter = new Hono()
 
         // Check if agent is disabled
         if (!agentDetail.isEnabled) {
-            const disabledMessage = errorMessage ?? "This agent is currently disabled."
+            const disabledMessage = errorMessage ?? "Xin lỗi, JiJi hiện đang nghỉ ngơi, hãy quay lại sau nhé!"
 
             if (stream) {
                 return streamDisabledResponse(disabledMessage)

@@ -34,13 +34,15 @@ import { Check, ChevronsUpDown, SaveIcon, BotIcon } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { MultiSelect } from "@/components/ui/multi-select"
-import { useUpdateAgent } from "@/features/agents/hooks/use-agents"
+import { useUpdateAgent, useToggleAgent } from "@/features/agents/hooks/use-agents"
 import { useEffect, useState } from "react"
 import { agentDetailQueryOptions } from "@/features/agents/query-options"
 import { llmsListQueryOptions } from "@/features/llms/query-options"
 import { datasourceGroupsListQueryOptions } from "@/features/datasource-groups/query-options"
 import { Spinner } from "@/components/ui/spinner"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
 
 // Schema for config form (subset of agent fields that are editable in playground)
 const configFormSchema = z.object({
@@ -59,13 +61,15 @@ type ConfigFormValues = z.infer<typeof configFormSchema>
 export interface AgentConfigPanelProps {
     agentId: number
     onConfigChange?: (config: Partial<ConfigFormValues>) => void
+    onLoadingChange?: (isLoading: boolean) => void
 }
 
-export const AgentConfigPanel = ({ agentId, onConfigChange }: AgentConfigPanelProps) => {
+export const AgentConfigPanel = ({ agentId, onConfigChange, onLoadingChange }: AgentConfigPanelProps) => {
     const [llmPopoverOpen, setLlmPopoverOpen] = useState(false)
     const updateMutation = useUpdateAgent()
+    const toggleAgent = useToggleAgent()
 
-    const { data: agentData } = useSuspenseQuery(agentDetailQueryOptions(agentId))
+    const { data: agentData, isFetching: agentFetching } = useSuspenseQuery(agentDetailQueryOptions(agentId))
     const { data: llmsData, isLoading: llmsLoading } = useQuery({
         ...llmsListQueryOptions({ page: 1, pageSize: 100, search: "", sortBy: "name", sortOrder: "asc" }),
     })
@@ -74,6 +78,12 @@ export const AgentConfigPanel = ({ agentId, onConfigChange }: AgentConfigPanelPr
     const { data: datasourceGroupsData, isLoading: datasourceGroupsLoading } = useQuery({
         ...datasourceGroupsListQueryOptions({ page: 1, pageSize: 100, search: "", sortBy: "name", sortOrder: "asc" }),
     })
+
+    // Notify parent about loading state
+    const isLoading = agentFetching || llmsLoading || datasourceGroupsLoading
+    useEffect(() => {
+        onLoadingChange?.(isLoading)
+    }, [isLoading, onLoadingChange])
 
     const agent = agentData?.data
     const llms = llmsData?.data || []
@@ -151,6 +161,25 @@ export const AgentConfigPanel = ({ agentId, onConfigChange }: AgentConfigPanelPr
 
     return (
         <div className="flex flex-col h-full">
+            {/* Header with toggle */}
+            <div className="p-4 border-b flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className={`size-10 rounded-lg flex items-center justify-center ${agent.isEnabled ? 'bg-primary/10' : 'bg-muted'}`}>
+                        <BotIcon className={`size-5 ${agent.isEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                    </div>
+                    <div>
+                        <h3 className="font-semibold">{agent.name}</h3>
+                        <Badge variant={agent.isEnabled ? 'default' : 'secondary'} className="text-xs">
+                            {agent.isEnabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
+                    </div>
+                </div>
+                <Switch
+                    checked={agent.isEnabled}
+                    onCheckedChange={() => toggleAgent.mutate(agentId)}
+                    disabled={toggleAgent.isPending}
+                />
+            </div>
             {/* Form */}
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
@@ -198,7 +227,7 @@ export const AgentConfigPanel = ({ agentId, onConfigChange }: AgentConfigPanelPr
                                             <Textarea
                                                 placeholder="You are a helpful assistant..."
                                                 rows={6}
-                                                className="text-xs"
+                                                className="text-xs max-h-40 overflow-y-auto resize-none"
                                                 {...field}
                                             />
                                         </FormControl>

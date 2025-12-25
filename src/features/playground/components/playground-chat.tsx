@@ -42,9 +42,10 @@ export interface PlaygroundChatProps {
         maxTokens?: number
         datasourceGroupIds?: number[]
     }
+    disabled?: boolean
 }
 
-export const PlaygroundChat = ({ agentId, customConfig }: PlaygroundChatProps) => {
+export const PlaygroundChat = ({ agentId, customConfig, disabled }: PlaygroundChatProps) => {
     const [inputValue, setInputValue] = useState("")
 
     const {
@@ -208,11 +209,11 @@ export const PlaygroundChat = ({ agentId, customConfig }: PlaygroundChatProps) =
                     className="relative"
                 >
                     <PromptInputTextarea
-                        placeholder="Type a message..."
+                        placeholder={disabled ? "Loading..." : "Type a message..."}
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        disabled={isLoading}
+                        disabled={isLoading || disabled}
                     />
                     <PromptInputFooter>
                         <div />

@@ -231,6 +231,7 @@ export const AgentsDialog = ({
                                                 <Textarea
                                                     placeholder="You are a helpful assistant..."
                                                     rows={4}
+                                                    className="max-h-40 overflow-y-auto resize-none"
                                                     {...field}
                                                 />
                                             </FormControl>

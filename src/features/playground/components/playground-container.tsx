@@ -64,6 +64,7 @@ export const PlaygroundError = () => (
 export const PlaygroundContainer = () => {
     const [agentId] = usePlaygroundParams()
     const isMobile = useIsMobile()
+    const [isConfigLoading, setIsConfigLoading] = useState(true)
     const [customConfig, setCustomConfig] = useState<{
         llmId?: number
         systemPrompt?: string
@@ -75,6 +76,10 @@ export const PlaygroundContainer = () => {
 
     const handleConfigChange = useCallback((config: typeof customConfig) => {
         setCustomConfig(config)
+    }, [])
+
+    const handleLoadingChange = useCallback((loading: boolean) => {
+        setIsConfigLoading(loading)
     }, [])
 
     // No agent selected - show selector
@@ -110,6 +115,7 @@ export const PlaygroundContainer = () => {
                             <AgentConfigPanel
                                 agentId={agentId}
                                 onConfigChange={handleConfigChange}
+                                onLoadingChange={handleLoadingChange}
                             />
                         </div>
                     </TabsContent>
@@ -118,6 +124,7 @@ export const PlaygroundContainer = () => {
                             <PlaygroundChat
                                 agentId={agentId}
                                 customConfig={customConfig}
+                                disabled={isConfigLoading}
                             />
                         </div>
                     </TabsContent>
@@ -130,6 +137,7 @@ export const PlaygroundContainer = () => {
                             <AgentConfigPanel
                                 agentId={agentId}
                                 onConfigChange={handleConfigChange}
+                                onLoadingChange={handleLoadingChange}
                             />
                         </div>
                     </ResizablePanel>
@@ -141,6 +149,7 @@ export const PlaygroundContainer = () => {
                             <PlaygroundChat
                                 agentId={agentId}
                                 customConfig={customConfig}
+                                disabled={isConfigLoading}
                             />
                         </div>
                     </ResizablePanel>
