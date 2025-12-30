@@ -143,12 +143,12 @@ async function performOllamaWebSearch(query: string, maxRetries = 3): Promise<Ol
 
 // Web search tool input schema
 export const webSearchInputSchema = z.object({
-    query: z
-        .string()
-        .describe("Câu hỏi hoặc từ khóa cần tìm kiếm trên web"),
     reasoning: z
         .string()
         .describe("Giải thích tại sao bạn cần tìm kiếm thông tin này trên web"),
+    query: z
+        .string()
+        .describe("Câu hỏi hoặc từ khóa cần tìm kiếm trên web"),
 })
 
 // Inferred type for web search tool input
@@ -212,15 +212,15 @@ export const createWebSearchTool = () =>
 
 // Single source of truth for semantic search tool input schema
 export const semanticSearchInputSchema = z.object({
-    query: z
-        .string()
-        .describe(
-            "Thông tin cần tìm kiếm"
-        ),
     reasoning: z
         .string()
         .describe(
             "Giải thích tại sao bạn chọn tìm kiếm thông tin"
+        ),
+    query: z
+        .string()
+        .describe(
+            "Thông tin cần tìm kiếm"
         ),
 })
 
