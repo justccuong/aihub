@@ -6,7 +6,7 @@ import {
     TrashIcon,
 } from "lucide-react"
 import { Button } from "./ui/button"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { Input } from "./ui/input"
 import {
     Empty,

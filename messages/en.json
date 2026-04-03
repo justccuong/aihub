@@ -8,7 +8,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "create": "Create New"
+    "create": "Create New",
+    "toggleLanguage": "Toggle language"
   },
   "Navigation": {
     "dashboard": "Dashboard",

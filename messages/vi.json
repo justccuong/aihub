@@ -8,7 +8,8 @@
     "cancel": "Hủy",
     "delete": "Xóa",
     "edit": "Sửa",
-    "create": "Tạo mới"
+    "create": "Tạo mới",
+    "toggleLanguage": "Chuyển ngôn ngữ"
   },
   "Navigation": {
     "dashboard": "Bảng điều khiển",

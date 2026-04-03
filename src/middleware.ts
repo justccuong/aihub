@@ -55,17 +55,18 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    // Matcher including internal next-intl routes and excluding api/assets
     matcher: [
+        // API routes - needed for CORS handling
+        '/api/:path*',
+
         // Enable a redirect to a matching locale at the root
         '/',
 
-        // Set a cookie to remember the previous locale for
-        // all requests that have a locale prefix
+        // Set a cookie to remember the previous locale
         '/(vi|en)/:path*',
 
-        // Enable redirects for all pages that don't have a locale prefix
+        // Enable redirects for all pages without a locale prefix
         // (excluding _next, api, and public files with extensions)
-        '/((?!api|_next|_vercel|.*\\..*).*)'
+        '/((?!api|_next|_vercel|.*\\..*).*)',
     ]
 }

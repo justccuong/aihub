@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { routing, usePathname, useRouter } from "@/i18n/routing";
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ export function LanguageToggle() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("Common");
 
   const changeLocale = (newLocale: string) => {
     router.replace(pathname, { locale: newLocale });
@@ -25,7 +26,7 @@ export function LanguageToggle() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="size-9 h-10 w-10">
           <GlobeIcon className="h-4 w-4" />
-          <span className="sr-only">Toggle language</span>
+          <span className="sr-only">{t("toggleLanguage")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
