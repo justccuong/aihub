@@ -20,31 +20,32 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "./ui/sidebar"
-import Link from "next/link"
+import { Link, usePathname, useRouter } from "@/i18n/routing"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
 import { Path } from "@/config/constants"
 import { signOut } from "@/lib/auth/client"
 import { useTheme } from "next-themes"
 import { useClient } from "@/hooks/use-client"
-
-const menuItems = [
-    {
-        title: "Agent Management",
-        items: [
-            { title: "LLMs", icon: BotIcon, url: "/llms" },
-            { title: "Datasource", icon: BookIcon, url: "/datasources" },
-            { title: "Agents", icon: BotMessageSquareIcon, url: "/agents" },
-            { title: "Playground", icon: PlayIcon, url: "/playground" },
-        ],
-    },
-]
+import { useTranslations } from "next-intl"
 
 export const AppSidebar = () => {
     const pathname = usePathname()
     const router = useRouter()
     const isClient = useClient()
     const { resolvedTheme } = useTheme()
+    const t = useTranslations("Navigation")
+
+    const menuItems = [
+        {
+            title: t("dashboard"), // Using a title from translations if needed, but the label below uses it too
+            items: [
+                { title: t("llms"), icon: BotIcon, url: "/llms" },
+                { title: t("datasources"), icon: BookIcon, url: "/datasources" },
+                { title: t("agents"), icon: BotMessageSquareIcon, url: "/agents" },
+                { title: t("playground"), icon: PlayIcon, url: "/playground" },
+            ],
+        },
+    ]
 
     const handleLogout = async () => {
         await signOut({
@@ -87,9 +88,9 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
             </SidebarHeader>
             <SidebarContent>
-                {menuItems.map((group) => (
-                    <SidebarGroup key={group.title}>
-                        <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+                {menuItems.map((group, index) => (
+                    <SidebarGroup key={index}>
+                        <SidebarGroupLabel>{t("dashboard")}</SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 {group.items.map((item) => (
@@ -106,7 +107,7 @@ export const AppSidebar = () => {
                                             asChild
                                             className="gap-x-4 h-10 px-4"
                                         >
-                                            <Link href={`${item.url}`} prefetch>
+                                            <Link href={item.url as any} prefetch>
                                                 <item.icon className="size-4" />
                                                 <span>{item.title}</span>
                                             </Link>
@@ -122,16 +123,16 @@ export const AppSidebar = () => {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
-                            tooltip="Logout"
+                            tooltip={t("logout")}
                             onClick={handleLogout}
                             className="gap-x-4 h-10 px-4 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                             <LogOutIcon className="size-4" />
-                            <span>Logout</span>
+                            <span>{t("logout")}</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
     )
-}
+}

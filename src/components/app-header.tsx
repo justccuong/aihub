@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "./theme-toggle"
 import { SidebarTrigger } from "./ui/sidebar"
+import { LanguageToggle } from "./language-toggle"
 
 interface AppHeaderProps {
     leftToolbar?: React.ReactNode
@@ -28,6 +29,7 @@ export const AppHeader = ({
             </div>
             <div className="flex gap-x-4 items-center">
                 {rightToolbar}
+                <LanguageToggle />
                 <ModeToggle />
             </div>
         </header>

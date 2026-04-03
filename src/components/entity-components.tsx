@@ -19,6 +19,7 @@ import {
 import { Spinner } from "./ui/spinner"
 import { cn } from "@/lib/utils"
 import React, { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card"
 import {
     DropdownMenu,
@@ -99,6 +100,9 @@ export const EntityHeader = ({
     disabled,
     isCreating,
 }: EntityHeaderProps) => {
+    const t = useTranslations("Entity")
+    const label = newButtonLabel === "New" ? t("new") : newButtonLabel
+
     return (
         <div className="flex flex-row items-center justify-between gap-x-4">
             <div className="flex flex-col">
@@ -116,14 +120,14 @@ export const EntityHeader = ({
                     onClick={onNew}
                 >
                     <PlusIcon className="size-4" />
-                    {newButtonLabel}
+                    {label}
                 </Button>
             )}
             {newButtonHref && !onNew && (
                 <Button size="sm" asChild>
                     <Link href={newButtonHref} prefetch>
                         <PlusIcon className="size-4" />
-                        {newButtonLabel}
+                        {label}
                     </Link>
                 </Button>
             )}
@@ -167,14 +171,16 @@ interface EntitySearchProps {
 export const EntitySearch = ({
     value,
     onChange,
-    placeholder = "Search...",
+    placeholder,
 }: EntitySearchProps) => {
+    const t = useTranslations("Entity")
+    const resolvedPlaceholder = placeholder || t("search")
     return (
         <div className="relative ml-auto">
             <SearchIcon className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
                 className="min-w-[400px] bg-background shadow-none border-border pl-8"
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
             />
@@ -195,10 +201,11 @@ export const EntityPagination = ({
     onPageChange,
     disabled,
 }: EntityPaginationProps) => {
+    const t = useTranslations("Entity")
     return (
         <div className="flex items-center justify-between gap-x-2 w-full">
             <div className="flex-1 text-sm text-muted-foreground">
-                Page {page} of {totalPages || 1}
+                {t("pageInfo", { page, total: totalPages || 1 })}
             </div>
             <div className="flex items-center justify-end gap-x-2 py-4">
                 <Button
@@ -207,7 +214,7 @@ export const EntityPagination = ({
                     size={"sm"}
                     onClick={() => onPageChange(Math.max(1, page - 1))}
                 >
-                    Previous
+                    {t("previous")}
                 </Button>
                 <Button
                     disabled={
@@ -217,7 +224,7 @@ export const EntityPagination = ({
                     size={"sm"}
                     onClick={() => onPageChange(Math.min(totalPages, page + 1))}
                 >
-                    Next
+                    {t("next")}
                 </Button>
             </div>
         </div>
@@ -233,17 +240,19 @@ interface EntityStateViewProps {
 
 export const EntityStateView = ({
     icon,
-    title = "Loading",
+    title,
     message,
     content,
 }: EntityStateViewProps) => {
+    const t = useTranslations("Entity")
+    const resolvedTitle = title || t("loading")
     return (
         <Empty className="border border-dashed bg-white dark:bg-background">
             <EmptyHeader>
                 <EmptyMedia variant="icon">
                     {icon ? icon : <BotIcon />}
                 </EmptyMedia>
-                <EmptyTitle>{title}</EmptyTitle>
+                <EmptyTitle>{resolvedTitle}</EmptyTitle>
                 {!!message && <EmptyDescription>{message}</EmptyDescription>}
             </EmptyHeader>
             {!!content && <EmptyContent>{content}</EmptyContent>}
@@ -259,10 +268,12 @@ interface EntityEmptyViewProps extends EntityStateViewProps {
 
 export const EntityEmptyView = ({
     onNews,
-    newLabel = "New Item",
+    newLabel,
     isLoading,
     ...props
 }: EntityEmptyViewProps) => {
+    const t = useTranslations("Entity")
+    const resolvedNewLabel = newLabel || t("new")
     return (
         <EntityStateView
             {...props}
@@ -270,7 +281,7 @@ export const EntityEmptyView = ({
                 onNews && (
                     <Button onClick={onNews} size="sm" disabled={isLoading}>
                         <PlusIcon className="size-4" />
-                        {newLabel}
+                        {resolvedNewLabel}
                     </Button>
                 )
             }
@@ -344,6 +355,7 @@ export const EntityItem = ({
     className,
     onClick,
 }: EntityItemProps) => {
+    const t = useTranslations("Entity")
     const [openMenu, setOpenMenu] = useState(false)
     const handleRemove = async (e: React.MouseEvent) => {
         e.preventDefault()
@@ -414,7 +426,7 @@ export const EntityItem = ({
                                         {onEdit && (
                                             <DropdownMenuItem onClick={handleEdit}>
                                                 <EditIcon className="size-4" />
-                                                Edit
+                                                {t("edit")}
                                             </DropdownMenuItem>
                                         )}
                                         {onRemove && (
@@ -424,7 +436,7 @@ export const EntityItem = ({
                                                 className="text-destructive focus:text-destructive"
                                             >
                                                 <TrashIcon className="size-4" />
-                                                Delete
+                                                {t("delete")}
                                             </DropdownMenuItem>
                                         )}
                                     </DropdownMenuContent>
@@ -457,6 +469,7 @@ export function EntityTable<TData, TValue>({
     onRowClick,
     isPending,
 }: EntityTableProps<TData, TValue>) {
+    const t = useTranslations("Entity")
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -550,7 +563,7 @@ export function EntityTable<TData, TValue>({
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    {emptyMessage}
+                                    {emptyMessage === "No results." ? t("noResults") : emptyMessage}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -571,11 +584,14 @@ interface EntityTablePaginationProps<TData> {
 export function EntityTablePagination<TData>({
     table,
 }: EntityTablePaginationProps<TData>) {
+    const t = useTranslations("Entity")
     return (
         <div className="flex items-center justify-between gap-x-2 w-full">
             <div className="flex-1 text-sm text-muted-foreground">
-                Page {table.getState().pagination.pageIndex + 1} of{" "}
-                {table.getPageCount() || 1}
+                {t("pageInfo", { 
+                    page: table.getState().pagination.pageIndex + 1, 
+                    total: table.getPageCount() || 1 
+                })}
             </div>
             <div className="flex items-center justify-end gap-x-2">
                 <Button
@@ -584,7 +600,7 @@ export function EntityTablePagination<TData>({
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                 >
-                    Previous
+                    {t("previous")}
                 </Button>
                 <Button
                     variant="outline"
@@ -592,7 +608,7 @@ export function EntityTablePagination<TData>({
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                 >
-                    Next
+                    {t("next")}
                 </Button>
             </div>
         </div>
@@ -613,13 +629,19 @@ export const EntityTableRowActions = ({
     onEdit,
     onRemove,
     isRemoving,
-    editLabel = "Edit",
-    deleteLabel = "Delete",
-    confirmTitle = "Delete this item?",
-    confirmDescription = "This action cannot be undone. This will permanently delete this item.",
+    editLabel,
+    deleteLabel,
+    confirmTitle,
+    confirmDescription,
 }: EntityTableRowActionsProps) => {
     const [openMenu, setOpenMenu] = useState(false)
     const [confirmOpen, setConfirmOpen] = useState(false)
+    const t = useTranslations("Entity")
+
+    const resolvedEditLabel = editLabel || t("edit")
+    const resolvedDeleteLabel = deleteLabel || t("delete")
+    const resolvedConfirmTitle = confirmTitle || t("deleteConfirmTitle")
+    const resolvedConfirmDescription = confirmDescription || t("deleteConfirmDescription")
 
     const handleRemove = async () => {
         if (isRemoving) return
@@ -648,7 +670,7 @@ export const EntityTableRowActions = ({
                     {onEdit && (
                         <DropdownMenuItem onClick={onEdit}>
                             <EditIcon className="size-4" />
-                            {editLabel}
+                            {resolvedEditLabel}
                         </DropdownMenuItem>
                     )}
                     {onRemove && (
@@ -662,7 +684,7 @@ export const EntityTableRowActions = ({
                             className="text-destructive focus:text-destructive"
                         >
                             <TrashIcon className="size-4" />
-                            {deleteLabel}
+                            {resolvedDeleteLabel}
                         </DropdownMenuItem>
                     )}
                 </DropdownMenuContent>
@@ -670,9 +692,9 @@ export const EntityTableRowActions = ({
             <ConfirmDialog
                 open={confirmOpen}
                 onOpenChange={setConfirmOpen}
-                title={confirmTitle}
-                description={confirmDescription}
-                confirmLabel="Delete"
+                title={resolvedConfirmTitle}
+                description={resolvedConfirmDescription}
+                confirmLabel={t("delete")}
                 onConfirm={handleRemove}
                 isLoading={isRemoving}
             />

@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack",
+		"dev:stable": "next dev",
 		"build": "next build",
 		"build:prod": "opennextjs-cloudflare build",
 		"start": "next start",
@@ -69,6 +70,7 @@
 		"motion": "^12.23.26",
 		"nanoid": "^5.1.6",
 		"next": "15.5.9",
+		"next-intl": "^4.9.0",
 		"next-themes": "^0.4.6",
 		"nuqs": "^2.8.5",
 		"ollama-ai-provider-v2": "^1.5.5",

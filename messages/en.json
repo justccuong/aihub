@@ -1,0 +1,49 @@
+{
+  "Common": {
+    "title": "AI Hub",
+    "description": "AI Agent Management Platform",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create New"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "agents": "Agent Management",
+    "llms": "LLM Configuration",
+    "datasources": "Knowledge Base",
+    "playground": "Playground",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "Auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "signInWithGoogle": "Sign In with Google"
+  },
+  "Chat": {
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "stop": "Stop",
+    "clear": "Clear Conversation",
+    "noMessages": "No messages yet. Start a conversation!"
+  },
+  "Entity": {
+    "search": "Search...",
+    "new": "New",
+    "edit": "Edit",
+    "delete": "Delete",
+    "previous": "Previous",
+    "next": "Next",
+    "loading": "Loading...",
+    "noResults": "No results found.",
+    "pageInfo": "Page {page} of {total}",
+    "deleteConfirmTitle": "Delete this item?",
+    "deleteConfirmDescription": "This action cannot be undone. This will permanently delete this item."
+  }
+}

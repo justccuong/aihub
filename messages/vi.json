@@ -1,0 +1,49 @@
+{
+  "Common": {
+    "title": "AI Hub",
+    "description": "Nền tảng quản lý AI Agent",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo mới"
+  },
+  "Navigation": {
+    "dashboard": "Bảng điều khiển",
+    "agents": "Quản lý Agent",
+    "llms": "Cấu hình LLM",
+    "datasources": "Cơ sở dữ liệu",
+    "playground": "Playground",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất"
+  },
+  "Auth": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "signInWithGoogle": "Đăng nhập với Google"
+  },
+  "Chat": {
+    "inputPlaceholder": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "stop": "Dừng",
+    "clear": "Xóa cuộc hội thoại",
+    "noMessages": "Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!"
+  },
+  "Entity": {
+    "search": "Tìm kiếm...",
+    "new": "Tạo mới",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "previous": "Trước",
+    "next": "Tiếp theo",
+    "loading": "Đang tải...",
+    "noResults": "Không tìm thấy kết quả.",
+    "pageInfo": "Trang {page} / {total}",
+    "deleteConfirmTitle": "Xóa mục này?",
+    "deleteConfirmDescription": "Hành động này không thể hoàn tác. Mục này sẽ bị xóa vĩnh viễn."
+  }
+}

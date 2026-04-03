@@ -43,7 +43,7 @@
 		{
 			"binding": "AIHUB_DB",
 			"database_name": "aihub-db",
-			"database_id": "5c91f1ba-94ba-496a-b579-34a78c307601",
+			"database_id": "72839a05-137f-4f25-baf8-71f8c127b3c1",
 			"remote": true,
 			"migrations_dir": "drizzle/migrations"
 		}
@@ -58,7 +58,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "AIHUB_KV",
-			"id": "ba3bf1d163684c5691fddd0ab4ba65c1",
+			"id": "0c06c7bedbfe492daf7acda7dcf3e7ac",
 			"remote": true
 		}
 	],
