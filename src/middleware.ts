@@ -33,14 +33,17 @@ export function middleware(request: NextRequest) {
         if (request.method === 'OPTIONS') {
             const preflightHeaders = {
                 ...(originAllowed && { 'Access-Control-Allow-Origin': origin }),
+                ...(originAllowed && { 'Vary': 'Origin' }),
                 ...corsOptions,
             }
             return NextResponse.json({}, { headers: preflightHeaders })
         }
 
+        // Handle simple requests
         const response = NextResponse.next()
         if (originAllowed) {
             response.headers.set('Access-Control-Allow-Origin', origin)
+            response.headers.set('Vary', 'Origin')
         }
 
         Object.entries(corsOptions).forEach(([key, value]) => {
